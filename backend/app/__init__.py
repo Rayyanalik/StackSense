@@ -1,0 +1,3 @@
+"""
+StackSense backend application package.
+""" 

@@ -1,0 +1,631 @@
+[
+  {
+    "name": "Stack Overflow: What does the &quot;yield&quot; keyword do in Pyth...",
+    "description": "<p>What functionality does the <a href=\"https://docs.python.org/3/reference/simple_stmts.html#yield\" rel=\"noreferrer\"><code>yield</code></a> keyword in Python provide?</p>\n<p>For example, I'm trying to understand this code<sup><strong>1</strong></sup>:</p>\n<pre><code>def _get_child_candidates(self, distance, min_dist, max_dist):\n    if self._leftchild and distance - max_dist &lt; self._median:\n        yield self._leftchild\n    if self._rightchild and distance + max_dist &gt;= self._median:\n     ",
+    "technologies": [
+      "Python",
+      "Go",
+      "Python"
+    ],
+    "metadata": {
+      "question_id": 231767,
+      "score": 13085,
+      "view_count": 3448444,
+      "answer_count": 52,
+      "tags": [
+        "python",
+        "iterator",
+        "generator",
+        "yield"
+      ],
+      "created_at": "2008-10-23T17:21:11",
+      "url": "https://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do-in-python"
+    },
+    "collected_at": "2025-06-16T20:44:59.158416",
+    "source": "StackOverflowCollector",
+    "tech_count": 3,
+    "description_length": 500,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: What does if __name__ == &quot;__main__&quot;: do?...",
+    "description": "<p>What does this do, and why should one include the <code>if</code> statement?</p>\n<pre class=\"lang-py prettyprint-override\"><code>if __name__ == &quot;__main__&quot;:\n    print(&quot;Hello, World!&quot;)\n</code></pre>\n<hr />\n<p><sub>If you are trying to close a question where someone should be using this idiom and isn't, consider closing as a duplicate of <a href=\"https://stackoverflow.com/questions/6523791\">Why is Python running my module when I import it, and how do I stop it?</a> instead. F",
+    "technologies": [
+      "Python",
+      "Java",
+      "Python",
+      "Go",
+      "Numpy"
+    ],
+    "metadata": {
+      "question_id": 419163,
+      "score": 8386,
+      "view_count": 4913830,
+      "answer_count": 40,
+      "tags": [
+        "python",
+        "namespaces",
+        "program-entry-point",
+        "python-module",
+        "idioms"
+      ],
+      "created_at": "2009-01-06T22:11:00",
+      "url": "https://stackoverflow.com/questions/419163/what-does-if-name-main-do"
+    },
+    "collected_at": "2025-06-16T20:44:59.347775",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: How can I remove a specific item from an array in ...",
+    "description": "<p>How do I remove a specific value from an array? Something like:</p>\n<pre class=\"lang-js prettyprint-override\"><code>array.remove(value);\n</code></pre>\n<p>Constraints: I have to use <strong>core</strong> JavaScript. Frameworks are not allowed.</p>\n",
+    "technologies": [
+      "Go",
+      "Javascript",
+      "Javascript",
+      "Node.Js",
+      "React",
+      "Typescript"
+    ],
+    "metadata": {
+      "question_id": 5767325,
+      "score": 12197,
+      "view_count": 13409275,
+      "answer_count": 50,
+      "tags": [
+        "javascript",
+        "arrays"
+      ],
+      "created_at": "2011-04-23T17:17:18",
+      "url": "https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array-in-javascript"
+    },
+    "collected_at": "2025-06-16T20:45:03.040311",
+    "source": "StackOverflowCollector",
+    "tech_count": 6,
+    "description_length": 250,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: How do I check if an element is hidden in jQuery?...",
+    "description": "<p>How do I toggle the visibility of an element using  <code>.hide()</code>, <code>.show()</code>, or <code>.toggle()</code>?</p>\n<p>How do I test if an element is <code>visible</code> or <code>hidden</code>?</p>\n",
+    "technologies": [
+      "Javascript",
+      "Go",
+      "Angular",
+      "Javascript"
+    ],
+    "metadata": {
+      "question_id": 178325,
+      "score": 8739,
+      "view_count": 3248794,
+      "answer_count": 67,
+      "tags": [
+        "javascript",
+        "jquery",
+        "dom",
+        "visibility",
+        "display"
+      ],
+      "created_at": "2008-10-07T08:03:18",
+      "url": "https://stackoverflow.com/questions/178325/how-do-i-check-if-an-element-is-hidden-in-jquery"
+    },
+    "collected_at": "2025-06-16T20:45:03.218220",
+    "source": "StackOverflowCollector",
+    "tech_count": 4,
+    "description_length": 213,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: Why is processing a sorted array faster than proce...",
+    "description": "<p>In this C++ code, sorting the data (<em>before</em> the timed region) makes the primary loop ~6x faster:</p>\n<pre class=\"lang-cpp prettyprint-override\"><code>#include &lt;algorithm&gt;\n#include &lt;ctime&gt;\n#include &lt;iostream&gt;\n\nint main()\n{\n    // Generate data\n    const unsigned arraySize = 32768;\n    int data[arraySize];\n\n    for (unsigned c = 0; c &lt; arraySize; ++c)\n        data[c] = std::rand() % 256;\n\n    // !!! With this, the next loop runs faster.\n    std::sort(data, data + ar",
+    "technologies": [
+      "Python",
+      "Java",
+      "Go",
+      "Java",
+      "PHP"
+    ],
+    "metadata": {
+      "question_id": 11227809,
+      "score": 27458,
+      "view_count": 1939174,
+      "answer_count": 25,
+      "tags": [
+        "java",
+        "c++",
+        "performance",
+        "cpu-architecture",
+        "branch-prediction"
+      ],
+      "created_at": "2012-06-27T08:51:36",
+      "url": "https://stackoverflow.com/questions/11227809/why-is-processing-a-sorted-array-faster-than-processing-an-unsorted-array"
+    },
+    "collected_at": "2025-06-16T20:45:07.084528",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: Is Java &quot;pass-by-reference&quot; or &quot;pas...",
+    "description": "<p>I always thought Java uses <strong>pass-by-reference</strong>. However, I read <a href=\"http://javadude.com/articles/passbyvalue.htm\" rel=\"noreferrer\">a blog post</a> which claims that Java uses <strong>pass-by-value</strong>. I don't think I understand the distinction the author is making.</p>\n<p>What is the explanation?</p>\n",
+    "technologies": [
+      "Python",
+      "Java",
+      "Go",
+      "Java",
+      "PHP"
+    ],
+    "metadata": {
+      "question_id": 40480,
+      "score": 7745,
+      "view_count": 2806160,
+      "answer_count": 87,
+      "tags": [
+        "java",
+        "methods",
+        "parameter-passing",
+        "pass-by-reference",
+        "pass-by-value"
+      ],
+      "created_at": "2008-09-02T15:14:29",
+      "url": "https://stackoverflow.com/questions/40480/is-java-pass-by-reference-or-pass-by-value"
+    },
+    "collected_at": "2025-06-16T20:45:07.260985",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 331,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: Error message &quot;error:0308010C:digital envelop...",
+    "description": "<p>I created the default IntelliJ IDEA React project and got this:</p>\n<pre class=\"lang-none prettyprint-override\"><code>Error: error:0308010C:digital envelope routines::unsupported\n    at new Hash (node:internal/crypto/hash:67:19)\n    at Object.createHash (node:crypto:130:10)\n    at module.exports (/Users/user/Programming Documents/WebServer/untitled/node_modules/webpack/lib/util/createHash.js:135:53)\n    at NormalModule._initBuildHash (/Users/user/Programming Documents/WebServer/untitled/node_",
+    "technologies": [
+      "Typescript",
+      "Docker",
+      "Angular",
+      "Microsoft Azure",
+      "Docker",
+      "Go",
+      "Vue.js",
+      "Node.Js",
+      "Go",
+      "React",
+      "React",
+      "Angular",
+      "Typescript",
+      "Node.Js",
+      "Vue.js"
+    ],
+    "metadata": {
+      "question_id": 69692842,
+      "score": 2551,
+      "view_count": 3442760,
+      "answer_count": 72,
+      "tags": [
+        "node.js",
+        "reactjs",
+        "webpack"
+      ],
+      "created_at": "2021-10-23T18:39:57",
+      "url": "https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported"
+    },
+    "collected_at": "2025-06-16T20:45:11.041318",
+    "source": "StackOverflowCollector",
+    "tech_count": 15,
+    "description_length": 500,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: How to programmatically navigate using React Route...",
+    "description": "<p>With <code>react-router</code> I can use the <code>Link</code> element to create links which are natively handled by react router. </p>\n\n<p>I see internally it calls <code>this.context.transitionTo(...)</code>.</p>\n\n<p>I want to do a navigation. Not from a link, but from a dropdown selection (as an example). How can I do this in code? What is <code>this.context</code>? </p>\n\n<p>I saw the <code>Navigation</code> mixin, but can I do this without <code>mixins</code>?</p>\n",
+    "technologies": [
+      "Typescript",
+      "Go",
+      "Node.Js",
+      "React",
+      "React",
+      "Typescript",
+      "Go"
+    ],
+    "metadata": {
+      "question_id": 31079081,
+      "score": 2369,
+      "view_count": 1798224,
+      "answer_count": 51,
+      "tags": [
+        "javascript",
+        "reactjs",
+        "react-router"
+      ],
+      "created_at": "2015-06-26T12:38:51",
+      "url": "https://stackoverflow.com/questions/31079081/how-to-programmatically-navigate-using-react-router"
+    },
+    "collected_at": "2025-06-16T20:45:11.201460",
+    "source": "StackOverflowCollector",
+    "tech_count": 7,
+    "description_length": 476,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: What&#39;s the difference between tilde(~) and car...",
+    "description": "<p>After I upgraded to the latest stable <code>node</code> and <code>npm</code>, I tried <code>npm install moment --save</code>. It saves the entry in the <code>package.json</code> with the caret <code>^</code> prefix. Previously, it was a tilde <code>~</code> prefix.</p>\n<ol>\n<li>Why are these changes made in <code>npm</code>?</li>\n<li>What is the difference between tilde <code>~</code> and caret <code>^</code>?</li>\n<li>What are the advantages over previous ones?</li>\n</ol>\n",
+    "technologies": [
+      "Go",
+      "Express.js"
+    ],
+    "metadata": {
+      "question_id": 22343224,
+      "score": 5550,
+      "view_count": 2045164,
+      "answer_count": 23,
+      "tags": [
+        "node.js",
+        "npm",
+        "package.json",
+        "caret",
+        "semantic-versioning"
+      ],
+      "created_at": "2014-03-12T01:02:21",
+      "url": "https://stackoverflow.com/questions/22343224/whats-the-difference-between-tilde-and-caret-in-package-json"
+    },
+    "collected_at": "2025-06-16T20:45:14.865517",
+    "source": "StackOverflowCollector",
+    "tech_count": 2,
+    "description_length": 481,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: Using async/await with a forEach loop...",
+    "description": "<p>Are there any issues with using <code>async</code>/<code>await</code> in a <code>forEach</code> loop? I'm trying to loop through an array of files and <code>await</code> on the contents of each file.</p>\n<pre><code>import fs from 'fs-promise'\n\nasync function printFiles () {\n  const files = await getFilePaths() // Assume this works fine\n\n  files.forEach(async (file) =&gt; {\n    const contents = await fs.readFile(file, 'utf8')\n    console.log(contents)\n  })\n}\n\nprintFiles()\n</code></pre>\n<p>This",
+    "technologies": [
+      "Typescript",
+      "Go",
+      "Javascript",
+      "Javascript",
+      "Javascript",
+      "React",
+      "Typescript"
+    ],
+    "metadata": {
+      "question_id": 37576685,
+      "score": 3322,
+      "view_count": 2417869,
+      "answer_count": 35,
+      "tags": [
+        "javascript",
+        "node.js",
+        "promise",
+        "async-await",
+        "ecmascript-2017"
+      ],
+      "created_at": "2016-06-01T13:55:58",
+      "url": "https://stackoverflow.com/questions/37576685/using-async-await-with-a-foreach-loop"
+    },
+    "collected_at": "2025-06-16T20:45:15.014649",
+    "source": "StackOverflowCollector",
+    "tech_count": 7,
+    "description_length": 500,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: What is the difference between null=True and blank...",
+    "description": "<p>When we add a model field in Django we generally write:</p>\n<pre><code>models.CharField(max_length=100, null=True, blank=True)\n</code></pre>\n<p>The same is done with <code>ForeignKey</code>, <code>DecimalField</code> etc. What is the basic difference between:</p>\n<ol>\n<li><code>null=True</code> only</li>\n<li><code>blank=True</code> only</li>\n<li><code>null=True</code> and <code>blank=True</code></li>\n</ol>\n<p>in respect to different (<code>CharField</code>, <code>ForeignKey</code>, <code>Many",
+    "technologies": [
+      "PostgreSQL",
+      "PostgreSQL",
+      "MySQL",
+      "Django",
+      "Django"
+    ],
+    "metadata": {
+      "question_id": 8609192,
+      "score": 1423,
+      "view_count": 580590,
+      "answer_count": 30,
+      "tags": [
+        "python",
+        "django",
+        "django-models",
+        "django-admin"
+      ],
+      "created_at": "2011-12-22T14:11:03",
+      "url": "https://stackoverflow.com/questions/8609192/what-is-the-difference-between-null-true-and-blank-true-in-django"
+    },
+    "collected_at": "2025-06-16T20:45:18.644988",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Database"
+  },
+  {
+    "name": "Stack Overflow: Has Django served an excess of 100k daily visits?...",
+    "description": "<p>I'm building a web application with Django. The reasons I chose Django were:</p>\n<ul>\n<li>I wanted to work with free/open-source tools.</li>\n<li>I like Python and feel it's a <strong>long-term</strong> language, whereas regarding Ruby I wasn't sure, and PHP seemed like a huge hassle to learn.</li>\n<li>I'm building a prototype for an idea and wasn't thinking too much about the future. Development speed was the main factor, and I already knew Python.</li>\n<li>I knew the migration to Google App ",
+    "technologies": [
+      "Python",
+      "Python",
+      "Heroku",
+      "PHP",
+      "PostgreSQL",
+      "Docker",
+      "Heroku",
+      "MySQL",
+      "Ruby on Rails",
+      "Ruby",
+      "Ruby on Rails",
+      "Redis",
+      "Redis",
+      "Go",
+      "Django",
+      "Go",
+      "Flask",
+      "Django",
+      "Digitalocean"
+    ],
+    "metadata": {
+      "question_id": 886221,
+      "score": 1223,
+      "view_count": 210845,
+      "answer_count": 29,
+      "tags": [
+        "python",
+        "django",
+        "web-applications",
+        "scalability"
+      ],
+      "created_at": "2009-05-20T00:07:55",
+      "url": "https://stackoverflow.com/questions/886221/has-django-served-an-excess-of-100k-daily-visits"
+    },
+    "collected_at": "2025-06-16T20:45:18.782788",
+    "source": "StackOverflowCollector",
+    "tech_count": 19,
+    "description_length": 500,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: Get the data received in a Flask request...",
+    "description": "<p>I want to be able to get the data sent to my Flask app. I've tried accessing <code>request.data</code> but it is an empty string. How do you access request data?</p>\n\n<pre class=\"lang-py prettyprint-override\"><code>from flask import request\n\n@app.route('/', methods=['GET', 'POST'])\ndef parse_request():\n    data = request.data  # data is empty\n    # need posted data here\n</code></pre>\n\n<hr>\n\n<p>The answer to this question led me to ask <a href=\"https://stackoverflow.com/q/10999990\">Get raw POS",
+    "technologies": [
+      "Python",
+      "Flask",
+      "Javascript",
+      "React",
+      "Flask"
+    ],
+    "metadata": {
+      "question_id": 10434599,
+      "score": 1298,
+      "view_count": 1948674,
+      "answer_count": 26,
+      "tags": [
+        "python",
+        "flask",
+        "werkzeug"
+      ],
+      "created_at": "2012-05-03T10:31:26",
+      "url": "https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request"
+    },
+    "collected_at": "2025-06-16T20:45:22.483841",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: How to serve static files in Flask...",
+    "description": "<p>So this is embarrassing. I've got an application that I threw together in <code>Flask</code> and for now it is just serving up a single static HTML page with some links to CSS and JS. And I can't find where in the documentation <code>Flask</code> describes returning static files. Yes, I could use <code>render_template</code> but I know the data is not templatized. I'd have thought <code>send_file</code> or <code>url_for</code> was the right thing, but I could not get those to work. In the mea",
+    "technologies": [
+      "Python",
+      "Flask",
+      "Javascript",
+      "Flask",
+      "Angular"
+    ],
+    "metadata": {
+      "question_id": 20646822,
+      "score": 835,
+      "view_count": 1105761,
+      "answer_count": 24,
+      "tags": [
+        "python",
+        "flask",
+        "static-files"
+      ],
+      "created_at": "2013-12-17T17:31:02",
+      "url": "https://stackoverflow.com/questions/20646822/how-to-serve-static-files-in-flask"
+    },
+    "collected_at": "2025-06-16T20:45:22.635828",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: What&#39;s the difference between @Component, @Rep...",
+    "description": "<p>Can <a href=\"https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Component.html\" rel=\"noreferrer\"><code>@Component</code></a>, <a href=\"https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Repository.html\" rel=\"noreferrer\"><code>@Repository</code></a>, and <a href=\"https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Service.html\" rel=\"noreferrer\"><code>@Service</c",
+    "technologies": [
+      "Spring Boot",
+      "Java",
+      "Go",
+      "Java",
+      "Spring Boot"
+    ],
+    "metadata": {
+      "question_id": 6827752,
+      "score": 2637,
+      "view_count": 1214307,
+      "answer_count": 30,
+      "tags": [
+        "java",
+        "spring",
+        "spring-mvc",
+        "annotations",
+        "inversion-of-control"
+      ],
+      "created_at": "2011-07-26T04:10:46",
+      "url": "https://stackoverflow.com/questions/6827752/whats-the-difference-between-component-repository-service-annotations-in"
+    },
+    "collected_at": "2025-06-16T20:45:26.344166",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: What is difference between CrudRepository and JpaR...",
+    "description": "<p>What is the difference between <a href=\"https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/CrudRepository.html\" rel=\"noreferrer\">CrudRepository</a> and <a href=\"https://docs.spring.io/spring-data/jpa/docs/current/api/org/springframework/data/jpa/repository/JpaRepository.html\" rel=\"noreferrer\">JpaRepository</a> interfaces in <a href=\"https://spring.io/projects/spring-data-jpa\" rel=\"noreferrer\">Spring Data JPA</a>?</p>\n<p>When I see the examples on t",
+    "technologies": [
+      "Spring Boot",
+      "MongoDB",
+      "Go",
+      "Java",
+      "Spring Boot"
+    ],
+    "metadata": {
+      "question_id": 14014086,
+      "score": 1131,
+      "view_count": 523930,
+      "answer_count": 9,
+      "tags": [
+        "java",
+        "spring",
+        "spring-data-jpa",
+        "spring-repositories"
+      ],
+      "created_at": "2012-12-23T13:35:12",
+      "url": "https://stackoverflow.com/questions/14014086/what-is-difference-between-crudrepository-and-jparepository-interfaces-in-spring"
+    },
+    "collected_at": "2025-06-16T20:45:26.462668",
+    "source": "StackOverflowCollector",
+    "tech_count": 5,
+    "description_length": 500,
+    "domain": "Backend"
+  },
+  {
+    "name": "Stack Overflow: Can&#39;t bind to &#39;ngModel&#39; since it isn&#...",
+    "description": "<p>I have this simple input in my component which uses <code>[(ngModel)]</code> :</p>\n<pre class=\"lang-html prettyprint-override\"><code>&lt;input type=&quot;text&quot; [(ngModel)]=&quot;test&quot; placeholder=&quot;foo&quot; /&gt;\n</code></pre>\n<p>And I get the following error when I launch my app, even if the component is not displayed.</p>\n<blockquote>\n<p>zone.js:461 Unhandled Promise rejection: Template parse errors:\nCan't bind to 'ngModel' since it isn't a known property of 'input'.</p>\n</bl",
+    "technologies": [
+      "Javascript",
+      "Go",
+      "Angular",
+      "Angular"
+    ],
+    "metadata": {
+      "question_id": 38892771,
+      "score": 2181,
+      "view_count": 1809396,
+      "answer_count": 54,
+      "tags": [
+        "angular",
+        "angular-forms",
+        "angular-template-form"
+      ],
+      "created_at": "2016-08-11T04:44:32",
+      "url": "https://stackoverflow.com/questions/38892771/cant-bind-to-ngmodel-since-it-isnt-a-known-property-of-input"
+    },
+    "collected_at": "2025-06-16T20:45:30.201488",
+    "source": "StackOverflowCollector",
+    "tech_count": 4,
+    "description_length": 500,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: What is the difference between Promises and Observ...",
+    "description": "<p>What is the difference between <code>Promise</code> and <code>Observable</code> in Angular?</p>\n\n<p>An example on each would be helpful in understanding both the cases. In what scenario can we use each case?</p>\n",
+    "technologies": [
+      "Typescript",
+      "Angular",
+      "Java",
+      "Go",
+      "Javascript",
+      "React",
+      "React",
+      "Angular",
+      "Typescript",
+      "Typescript",
+      "PHP"
+    ],
+    "metadata": {
+      "question_id": 37364973,
+      "score": 1911,
+      "view_count": 873325,
+      "answer_count": 35,
+      "tags": [
+        "angular",
+        "promise",
+        "rxjs",
+        "angular-promise",
+        "angular-observable"
+      ],
+      "created_at": "2016-05-21T10:43:27",
+      "url": "https://stackoverflow.com/questions/37364973/what-is-the-difference-between-promises-and-observables"
+    },
+    "collected_at": "2025-06-16T20:45:30.392904",
+    "source": "StackOverflowCollector",
+    "tech_count": 11,
+    "description_length": 215,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: Vue.js - How to properly watch for nested data...",
+    "description": "<p>I'm  trying to understand how to properly watch for some prop variation. I have a parent component (.vue files) that receive data from an ajax call, put the data inside an object and use it to render some child component through a v-for directive, below is a simplification of my implementation:</p>\n<pre class=\"lang-html prettyprint-override\"><code>&lt;template&gt;\n  &lt;div&gt;\n    &lt;player v-for=&quot;(item, key, index) in players&quot;\n      :item=&quot;item&quot;\n      :index=&quot;index",
+    "technologies": [
+      "Vue.js",
+      "PHP",
+      "Vue.js"
+    ],
+    "metadata": {
+      "question_id": 42133894,
+      "score": 725,
+      "view_count": 634270,
+      "answer_count": 16,
+      "tags": [
+        "javascript",
+        "vue.js",
+        "vue-component",
+        "vue-resource"
+      ],
+      "created_at": "2017-02-09T04:16:36",
+      "url": "https://stackoverflow.com/questions/42133894/vue-js-how-to-properly-watch-for-nested-data"
+    },
+    "collected_at": "2025-06-16T20:45:34.017308",
+    "source": "StackOverflowCollector",
+    "tech_count": 3,
+    "description_length": 500,
+    "domain": "Web Development"
+  },
+  {
+    "name": "Stack Overflow: Why does Prettier not format code in VS Code?...",
+    "description": "<p>In my Nuxt application where ESlint and Prettier are installed and enabled, I switched to Visual Studio Code.</p>\n<p>When I open a <strong>.vue</strong> file and press <kbd>CMD</kbd>+ <kbd>Shift</kbd> + <kbd>P</kbd>  and choose <strong>Format Document</strong>, my file does not get <a href=\"https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode\" rel=\"noreferrer\">formatted</a> at all.</p>\n<p>My  <strong>.prettierrc</strong> <a href=\"https://prettier.io/docs/en/configuration",
+    "technologies": [
+      "Typescript",
+      "Go",
+      "Javascript",
+      "Vue.js",
+      "Go",
+      "Vue.js"
+    ],
+    "metadata": {
+      "question_id": 52586965,
+      "score": 652,
+      "view_count": 921044,
+      "answer_count": 53,
+      "tags": [
+        "javascript",
+        "vue.js",
+        "visual-studio-code",
+        "nuxt.js",
+        "prettier"
+      ],
+      "created_at": "2018-10-01T03:10:13",
+      "url": "https://stackoverflow.com/questions/52586965/why-does-prettier-not-format-code-in-vs-code"
+    },
+    "collected_at": "2025-06-16T20:45:34.172017",
+    "source": "StackOverflowCollector",
+    "tech_count": 6,
+    "description_length": 500,
+    "domain": "Web Development"
+  }
+]

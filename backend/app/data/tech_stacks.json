@@ -1,0 +1,50 @@
+{
+    "tech_stacks": [
+        {
+            "name": "Modern Web Stack",
+            "description": "A modern web application stack with React frontend, Node.js backend, and MongoDB database. Perfect for real-time applications and RESTful APIs.",
+            "frontend": ["React", "TypeScript", "Tailwind CSS"],
+            "backend": ["Node.js", "Express"],
+            "database": ["MongoDB"],
+            "deployment": ["Docker", "AWS"],
+            "use_cases": ["Web Applications", "Real-time Applications", "REST APIs"]
+        },
+        {
+            "name": "Enterprise Java Stack",
+            "description": "A robust enterprise-grade stack using Spring Boot, Angular, and PostgreSQL. Ideal for large-scale applications with complex business logic.",
+            "frontend": ["Angular", "TypeScript", "Material UI"],
+            "backend": ["Java", "Spring Boot"],
+            "database": ["PostgreSQL"],
+            "deployment": ["Docker", "Kubernetes"],
+            "use_cases": ["Enterprise Applications", "Microservices", "High-load Systems"]
+        },
+        {
+            "name": "Python Data Science Stack",
+            "description": "A comprehensive data science and machine learning stack using Python, with tools for data processing, analysis, and model deployment.",
+            "languages": ["Python"],
+            "frameworks": ["TensorFlow", "PyTorch", "Scikit-learn"],
+            "data_processing": ["Pandas", "NumPy"],
+            "visualization": ["Matplotlib", "Seaborn"],
+            "deployment": ["Docker", "MLflow"],
+            "use_cases": ["Machine Learning", "Data Analysis", "AI Applications"]
+        },
+        {
+            "name": "Full Stack Python",
+            "description": "A complete Python-based web stack using Django and Vue.js. Great for rapid development and maintainable applications.",
+            "frontend": ["Vue.js", "JavaScript", "Vuetify"],
+            "backend": ["Python", "Django"],
+            "database": ["PostgreSQL"],
+            "deployment": ["Docker", "Nginx"],
+            "use_cases": ["Web Applications", "Content Management", "REST APIs"]
+        },
+        {
+            "name": "Serverless Stack",
+            "description": "A modern serverless architecture using AWS services and React. Perfect for scalable applications with minimal infrastructure management.",
+            "frontend": ["React", "TypeScript", "AWS Amplify"],
+            "backend": ["AWS Lambda", "API Gateway"],
+            "database": ["DynamoDB"],
+            "services": ["S3", "CloudFront", "Cognito"],
+            "use_cases": ["Serverless Applications", "Scalable APIs", "Static Websites"]
+        }
+    ]
+} 

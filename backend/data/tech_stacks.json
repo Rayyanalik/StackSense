@@ -1,0 +1,193 @@
+{
+  "tech_stacks": [
+    {
+      "name": "Modern Web App",
+      "description": "A real-time chat application for remote teams.",
+      "frontend": ["React", "TypeScript", "Tailwind CSS"],
+      "backend": ["Node.js", "Express"],
+      "database": ["MongoDB"],
+      "devops": ["Docker", "AWS"],
+      "use_cases": ["Web Applications", "Real-time Applications", "REST APIs"]
+    },
+    {
+      "name": "E-Commerce Platform",
+      "description": "A scalable e-commerce website with payment integration.",
+      "frontend": ["Next.js", "React", "Styled Components"],
+      "backend": ["Node.js", "Express"],
+      "database": ["PostgreSQL"],
+      "devops": ["Docker", "AWS"],
+      "use_cases": ["E-Commerce", "Web Applications"]
+    },
+    {
+      "name": "Data Analytics Dashboard",
+      "description": "A dashboard for visualizing business metrics and analytics.",
+      "frontend": ["Vue.js", "Vuetify"],
+      "backend": ["Python", "Flask"],
+      "database": ["MySQL"],
+      "devops": ["Docker", "Azure"],
+      "use_cases": ["Analytics", "Dashboards"]
+    },
+    {
+      "name": "Mobile Social Network",
+      "description": "A mobile-first social networking app with photo sharing and messaging.",
+      "frontend": ["React Native", "Expo"],
+      "backend": ["Firebase", "Node.js"],
+      "database": ["Firestore"],
+      "devops": ["Firebase Hosting"],
+      "use_cases": ["Mobile Apps", "Social Networks"]
+    },
+    {
+      "name": "IoT Device Management",
+      "description": "A platform to manage and monitor IoT devices in real time.",
+      "frontend": ["Angular", "Bootstrap"],
+      "backend": ["Go", "Gin"],
+      "database": ["InfluxDB"],
+      "devops": ["Kubernetes", "GCP"],
+      "use_cases": ["IoT", "Device Management"]
+    },
+    {
+      "name": "AI-Powered Chatbot",
+      "description": "A chatbot for customer support using NLP and machine learning.",
+      "frontend": ["Vue.js", "Vuetify"],
+      "backend": ["Python", "FastAPI"],
+      "database": ["MongoDB"],
+      "devops": ["Docker", "Heroku"],
+      "use_cases": ["AI", "Chatbots", "Customer Support"]
+    },
+    {
+      "name": "Enterprise Resource Planning (ERP)",
+      "description": "A comprehensive ERP system for large organizations.",
+      "frontend": ["Angular", "Material UI"],
+      "backend": ["Java", "Spring Boot"],
+      "database": ["Oracle"],
+      "devops": ["Docker", "AWS"],
+      "use_cases": ["ERP", "Enterprise"]
+    },
+    {
+      "name": "Blog Platform",
+      "description": "A simple blogging platform with markdown support.",
+      "frontend": ["Gatsby", "React"],
+      "backend": ["Node.js", "Express"],
+      "database": ["SQLite"],
+      "devops": ["Netlify"],
+      "use_cases": ["Blogs", "Content Management"]
+    },
+    {
+      "name": "Video Streaming Service",
+      "description": "A scalable video streaming platform with adaptive bitrate.",
+      "frontend": ["React", "Redux"],
+      "backend": ["Node.js", "Koa"],
+      "database": ["Cassandra"],
+      "devops": ["AWS", "CloudFront"],
+      "use_cases": ["Streaming", "Media"]
+    },
+    {
+      "name": "Healthcare Appointment System",
+      "description": "A secure system for booking and managing healthcare appointments.",
+      "frontend": ["Svelte", "Tailwind CSS"],
+      "backend": ["Python", "Django"],
+      "database": ["PostgreSQL"],
+      "devops": ["Docker", "Azure"],
+      "use_cases": ["Healthcare", "Scheduling"]
+    },
+    {
+      "name": "Online Learning Platform",
+      "description": "A platform for hosting and delivering online courses.",
+      "frontend": ["React", "Chakra UI"],
+      "backend": ["Ruby", "Rails"],
+      "database": ["MySQL"],
+      "devops": ["Heroku"],
+      "use_cases": ["Education", "E-Learning"]
+    },
+    {
+      "name": "Serverless API",
+      "description": "A serverless REST API for a mobile app.",
+      "frontend": ["React Native"],
+      "backend": ["AWS Lambda", "API Gateway"],
+      "database": ["DynamoDB"],
+      "devops": ["AWS"],
+      "use_cases": ["APIs", "Serverless"]
+    },
+    {
+      "name": "Financial Trading Platform",
+      "description": "A real-time trading platform for stocks and cryptocurrencies.",
+      "frontend": ["Vue.js", "Element UI"],
+      "backend": ["C#", ".NET Core"],
+      "database": ["SQL Server"],
+      "devops": ["Docker", "Azure"],
+      "use_cases": ["Finance", "Trading"]
+    },
+    {
+      "name": "Travel Booking Website",
+      "description": "A website for booking flights, hotels, and rental cars.",
+      "frontend": ["Next.js", "React"],
+      "backend": ["Node.js", "Express"],
+      "database": ["PostgreSQL"],
+      "devops": ["AWS", "Docker"],
+      "use_cases": ["Travel", "Booking"]
+    },
+    {
+      "name": "Fitness Tracker App",
+      "description": "A mobile app for tracking workouts and health metrics.",
+      "frontend": ["Flutter"],
+      "backend": ["Firebase Functions"],
+      "database": ["Firestore"],
+      "devops": ["Firebase Hosting"],
+      "use_cases": ["Fitness", "Mobile Apps"]
+    },
+    {
+      "name": "Real Estate Listing Portal",
+      "description": "A portal for listing and searching real estate properties.",
+      "frontend": ["React", "Ant Design"],
+      "backend": ["Python", "FastAPI"],
+      "database": ["MongoDB"],
+      "devops": ["Docker", "AWS"],
+      "use_cases": ["Real Estate", "Search"]
+    },
+    {
+      "name": "Weather Forecast Dashboard",
+      "description": "A dashboard for displaying weather forecasts and alerts.",
+      "frontend": ["Angular", "Material UI"],
+      "backend": ["Node.js", "Express"],
+      "database": ["Redis"],
+      "devops": ["GCP"],
+      "use_cases": ["Weather", "Dashboards"]
+    },
+    {
+      "name": "Inventory Management System",
+      "description": "A system for tracking and managing inventory in warehouses.",
+      "frontend": ["Vue.js", "Vuetify"],
+      "backend": ["PHP", "Laravel"],
+      "database": ["MySQL"],
+      "devops": ["Docker", "AWS"],
+      "use_cases": ["Inventory", "Management"]
+    },
+    {
+      "name": "Job Board Platform",
+      "description": "A platform for posting and searching for jobs.",
+      "frontend": ["React", "Bootstrap"],
+      "backend": ["Ruby", "Rails"],
+      "database": ["PostgreSQL"],
+      "devops": ["Heroku"],
+      "use_cases": ["Jobs", "Recruitment"]
+    },
+    {
+      "name": "Crowdfunding Website",
+      "description": "A website for launching and funding crowdfunding campaigns.",
+      "frontend": ["Svelte", "Tailwind CSS"],
+      "backend": ["Node.js", "Express"],
+      "database": ["MongoDB"],
+      "devops": ["AWS", "Docker"],
+      "use_cases": ["Crowdfunding", "Web Applications"]
+    },
+    {
+      "name": "Restaurant Ordering System",
+      "description": "A system for online food ordering and table reservations.",
+      "frontend": ["React", "Material UI"],
+      "backend": ["Python", "Django"],
+      "database": ["PostgreSQL"],
+      "devops": ["Docker", "Azure"],
+      "use_cases": ["Restaurants", "Ordering"]
+    }
+  ]
+} 

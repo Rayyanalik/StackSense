@@ -1,0 +1,35 @@
+[
+  {
+    "name": "free-programming-books",
+    "description": ":books: Freely available programming books",
+    "technologies": [
+      "List",
+      "Hacktoberfest",
+      "Python",
+      "Books",
+      "Resource",
+      "Education",
+      "Html"
+    ],
+    "metadata": {
+      "stars": 359555,
+      "forks": 63552,
+      "created_at": "2013-10-11T06:50:37Z",
+      "updated_at": "2025-06-17T20:56:48Z",
+      "language": "Python",
+      "topics": [
+        "education",
+        "books",
+        "list",
+        "resource",
+        "hacktoberfest"
+      ],
+      "url": "https://github.com/EbookFoundation/free-programming-books"
+    },
+    "collected_at": "2025-06-17T16:04:45.598435",
+    "source": "GitHubCollector",
+    "tech_count": 7,
+    "description_length": 42,
+    "domain": "Web Development"
+  }
+]

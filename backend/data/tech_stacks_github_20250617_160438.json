@@ -1,0 +1,84 @@
+[
+  {
+    "name": "free-programming-books",
+    "description": ":books: Freely available programming books",
+    "technologies": [
+      "List",
+      "Hacktoberfest",
+      "Python",
+      "Books",
+      "Resource",
+      "Education",
+      "Html"
+    ],
+    "metadata": {
+      "stars": 359555,
+      "forks": 63552,
+      "created_at": "2013-10-11T06:50:37Z",
+      "updated_at": "2025-06-17T20:56:48Z",
+      "language": "Python",
+      "topics": [
+        "education",
+        "books",
+        "list",
+        "resource",
+        "hacktoberfest"
+      ],
+      "url": "https://github.com/EbookFoundation/free-programming-books"
+    },
+    "collected_at": "2025-06-17T16:04:38.286666",
+    "source": "GitHubCollector",
+    "tech_count": 7,
+    "description_length": 42,
+    "domain": "Web Development"
+  },
+  {
+    "name": "public-apis",
+    "description": "A collective list of free APIs",
+    "technologies": [
+      "Api",
+      "List",
+      "Free",
+      "Software",
+      "Public",
+      "Python",
+      "Public-Api",
+      "Dataset",
+      "Lists",
+      "Development",
+      "Shell",
+      "Apis",
+      "Open-Source",
+      "Resources",
+      "Public-Apis"
+    ],
+    "metadata": {
+      "stars": 351651,
+      "forks": 36956,
+      "created_at": "2016-03-20T23:49:42Z",
+      "updated_at": "2025-06-17T21:02:00Z",
+      "language": "Python",
+      "topics": [
+        "api",
+        "public-apis",
+        "free",
+        "apis",
+        "list",
+        "development",
+        "software",
+        "public",
+        "resources",
+        "dataset",
+        "open-source",
+        "public-api",
+        "lists"
+      ],
+      "url": "https://github.com/public-apis/public-apis"
+    },
+    "collected_at": "2025-06-17T16:04:38.902025",
+    "source": "GitHubCollector",
+    "tech_count": 15,
+    "description_length": 30,
+    "domain": "Data Science"
+  }
+]
