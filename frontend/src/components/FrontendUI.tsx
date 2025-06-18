@@ -106,10 +106,29 @@ export const FrontendUI: React.FC = () => {
       }
       const data = await response.json();
       setRecommendation(data);
-    } catch (err: any) {
-      setError(err.message || 'Unknown error');
-    } finally {
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to get recommendation. Please try again.');
       setLoading(false);
+      // Fallback recommendation in case of backend connection error
+      setRecommendation({
+        primary_tech_stack: ['React', 'Node.js', 'Express', 'MongoDB'],
+        alternatives: ['Vue.js', 'Django', 'PostgreSQL'],
+        explanation: 'A reliable stack for general web applications.',
+        confidence_level: 0.8,
+        similar_projects: [
+          {
+            name: 'Similar Project 1',
+            description: 'A project using similar technologies.',
+            technologies: ['React', 'Node.js', 'MongoDB'],
+            metadata: {
+              scalability: 'High',
+              maintainability: 'High',
+              community_support: 'Strong'
+            }
+          }
+        ]
+      });
     }
   };
 
@@ -282,7 +301,7 @@ export const FrontendUI: React.FC = () => {
           <h1 className="text-2xl font-bold text-gradient">StackSense</h1>
         </div>
         <a
-          href="https://github.com/yourusername/stacksense"
+          href="https://github.com/Rayyanalik/StackSense.git"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-300"
