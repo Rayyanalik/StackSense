@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 from datetime import datetime, timedelta
 from app.data.collection.base_collector import BaseCollector
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -167,6 +168,52 @@ class GitHubCollector(BaseCollector):
         
         self.logger.info(f"Collected {len(all_tech_stacks)} tech stacks from GitHub")
         return all_tech_stacks[:limit]
+
+    def search_projects(self, query: str, limit: int = 5) -> list:
+        """Search GitHub for repositories relevant to the query and return their tech stacks."""
+        # Simple keyword extraction: remove stopwords, punctuation, and use top 5 words
+        stopwords = set(['the', 'and', 'for', 'with', 'to', 'of', 'a', 'in', 'on', 'is', 'it', 'as', 'by', 'at', 'an', 'be', 'or', 'from', 'that', 'this', 'are', 'was', 'but', 'if', 'then', 'so', 'should', 'can', 'will', 'has', 'have', 'had', 'do', 'does', 'did', 'which', 'who', 'what', 'when', 'where', 'why', 'how', 'all', 'any', 'each', 'other', 'their', 'more', 'most', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'than', 'too', 'very', 's', 't', 'just', 'now'])
+        words = re.findall(r'\b\w+\b', query.lower())
+        keywords = [w for w in words if w not in stopwords]
+        keywords = keywords[:5]  # Take top 5
+        github_query = '+'.join(keywords)
+        params = {
+            'q': github_query,
+            'sort': 'stars',
+            'order': 'desc',
+            'per_page': limit
+        }
+        try:
+            response = requests.get(
+                f'{self.api_url}/search/repositories',
+                params=params,
+                headers=self.headers,
+                timeout=10
+            )
+            if response.status_code == 403:
+                if 'X-RateLimit-Remaining' in response.headers and int(response.headers['X-RateLimit-Remaining']) == 0:
+                    reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+                    wait_time = max(reset_time - time.time(), 0) + 1
+                    logger.warning(f"GitHub rate limit exceeded. Waiting {wait_time:.0f} seconds...")
+                    raise Exception('GitHub rate limit exceeded')
+            response.raise_for_status()
+            data = response.json()
+            if 'items' not in data:
+                logger.error(f"Unexpected API response: {data}")
+                return []
+            repos = data['items']
+            tech_stacks = []
+            for repo in repos:
+                try:
+                    tech_stack = self.get_repo_tech_stack(repo)
+                    if self.validate_entry(tech_stack):
+                        tech_stacks.append(tech_stack)
+                except Exception as e:
+                    logger.error(f"Error processing repository {repo['name']}: {str(e)}")
+            return tech_stacks
+        except Exception as e:
+            logger.error(f"Error searching GitHub: {str(e)}")
+            return []
 
 def main():
     # Initialize collector

@@ -1,11 +1,44 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useReducer, useRef } from 'react';
 import { Send, Loader2, Code, Lightbulb, Sparkles, Github } from 'lucide-react';
 import AnimatedPlaceholder from './AnimatedPlaceholder';
 import { techStackApi, ProjectDescription, TechStackRecommendation, SimilarProject } from '../api/techStackApi';
-import { useDebounce } from '../hooks/useDebounce';
-import { Skeleton, SkeletonText, SkeletonCard } from './Skeleton';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 
+// --- State Management ---
+interface State {
+  loading: boolean;
+  error: string | null;
+  recommendation: TechStackRecommendation | null;
+}
+
+type Action =
+  | { type: 'FETCH_START' }
+  | { type: 'FETCH_SUCCESS'; payload: TechStackRecommendation }
+  | { type: 'FETCH_ERROR'; payload: string }
+  | { type: 'RESET' };
+
+const initialState: State = {
+  loading: false,
+  error: null,
+  recommendation: null,
+};
+
+const recommendationReducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'FETCH_START':
+      return { ...initialState, loading: true };
+    case 'FETCH_SUCCESS':
+      return { ...state, loading: false, recommendation: action.payload };
+    case 'FETCH_ERROR':
+      return { ...state, loading: false, error: action.payload };
+    case 'RESET':
+      return initialState;
+    default:
+      throw new Error(`Unhandled action type`);
+  }
+};
+
+// --- Interfaces & Components ---
 interface Particle {
   id: number;
   x: number;
@@ -15,271 +48,209 @@ interface Particle {
   delay: number;
 }
 
-// Improved dark skeleton loader with shimmer effect
-const SkeletonBox: React.FC<{ className?: string }> = ({ className }) => (
-  <div
-    className={`relative overflow-hidden rounded-lg h-24 w-full mb-4 ${className || ''}`}
-    style={{ minHeight: 96, background: 'linear-gradient(90deg, #23272f 25%, #2d323c 50%, #23272f 75%)' }}
-  >
-    <div className="absolute inset-0 animate-skeleton-shimmer" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)' }} />
-  </div>
-);
-
-// Add shimmer animation to global styles if not present
-// .animate-skeleton-shimmer {
-//   animation: shimmer 1.5s infinite linear;
-// }
-// @keyframes shimmer {
-//   0% { transform: translateX(-100%); }
-//   100% { transform: translateX(100%); }
-// }
-
+// --- Main Component ---
 export const FrontendUI: React.FC = () => {
   const [description, setDescription] = useState('');
-  const [requirements, setRequirements] = useState<string[]>([]);
-  const [constraints, setConstraints] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [recommendation, setRecommendation] = useState<TechStackRecommendation | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(recommendationReducer, initialState);
+  const { loading, error, recommendation } = state;
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const [similarProjects, setSimilarProjects] = useState<SimilarProject[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [page, setPage] = useState(1);
   const [hasMoreProjects, setHasMoreProjects] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
-  const [particles, setParticles] = useState<Particle[]>([]);
 
-  // Generate floating particles
   useEffect(() => {
-    const generateParticles = () => {
-      const newParticles: Particle[] = [];
-      for (let i = 0; i < 50; i++) {
-        newParticles.push({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size: Math.random() * 3 + 1,
-          duration: Math.random() * 20 + 10,
-          delay: Math.random() * 5
-        });
-      }
-      setParticles(newParticles);
-    };
-    generateParticles();
+    // Generate floating particles on mount
+    const newParticles: Particle[] = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 20 + 10,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
   }, []);
 
-  const debouncedGetRecommendation = useDebounce(async (description: string, requirements: string[], constraints: string[]) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const recommendation = await techStackApi.getRecommendation({
-        description,
-        requirements,
-        constraints
-      });
-
-      setRecommendation(recommendation);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+    // If a request is in-flight while the user is typing, abort it.
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      // Reset the state from 'loading'
+      dispatch({ type: 'RESET' });
     }
-  }, 500);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setRecommendation(null);
+  const handleSubmit = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!description.trim()) return;
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    dispatch({ type: 'FETCH_START' });
+
     try {
-      const response = await fetch('http://localhost:8005/api/v1/tech-stack/recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const result = await techStackApi.getRecommendation(
+        {
           description,
           requirements: [],
-          constraints: {}
-        })
-      });
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.detail || 'Failed to get recommendation');
-      }
-      const data = await response.json();
-      setRecommendation(data);
-    } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to get recommendation. Please try again.');
-      setLoading(false);
-      // Fallback recommendation in case of backend connection error
-      setRecommendation({
-        primary_tech_stack: ['React', 'Node.js', 'Express', 'MongoDB'],
-        alternatives: ['Vue.js', 'Django', 'PostgreSQL'],
-        explanation: 'A reliable stack for general web applications.',
-        confidence_level: 0.8,
-        similar_projects: [
-          {
-            name: 'Similar Project 1',
-            description: 'A project using similar technologies.',
-            technologies: ['React', 'Node.js', 'MongoDB'],
-            metadata: {
-              scalability: 'High',
-              maintainability: 'High',
-              community_support: 'Strong'
-            }
-          }
-        ]
-      });
-    }
-  };
-
-  const handleReset = () => {
-    setDescription('');
-    setRequirements([]);
-    setConstraints([]);
-    setRecommendation(null);
-    setError(null);
-  };
-
-  const loadMoreProjects = useCallback(async () => {
-    if (!recommendation || loadingMore) return;
-
-    try {
-      setLoadingMore(true);
-      const newProjects = recommendation.similar_projects.slice(
-        (page - 1) * 3,
-        page * 3
+          constraints: {},
+        },
+        controller.signal // Pass the signal
       );
-
-      if (newProjects.length === 0) {
-        setHasMoreProjects(false);
-        return;
+      dispatch({ type: 'FETCH_SUCCESS', payload: result });
+    } catch (err: any) {
+      // Don't show an error message if the request was intentionally aborted
+      if (err.name === 'AbortError' || err.code === 'ERR_CANCELED') {
+        console.log('Fetch successfully aborted.');
+      } else {
+        dispatch({ type: 'FETCH_ERROR', payload: err.message || 'An unknown error occurred.' });
       }
-
-      setSimilarProjects(prev => [...prev, ...newProjects]);
-      setPage(prev => prev + 1);
     } finally {
-      setLoadingMore(false);
+      // This request is done, so clear the controller ref.
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
     }
-  }, [recommendation, page, loadingMore]);
+  }, [description]);
 
-  const lastProjectRef = useInfiniteScroll({
-    onLoadMore: loadMoreProjects,
-    hasMore: hasMoreProjects,
-    loading: loadingMore
-  });
-
-  // Reset similar projects when new recommendation is received
   useEffect(() => {
     if (recommendation) {
       setSimilarProjects(recommendation.similar_projects.slice(0, 3));
       setHasMoreProjects(recommendation.similar_projects.length > 3);
-      setPage(2);
+      setPage(1); // Reset page for new recommendations
     }
   }, [recommendation]);
 
-  const renderLoadingState = () => (
-    <div className="space-y-6">
-      <SkeletonCard className="mb-8" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <SkeletonCard />
-        <SkeletonCard />
-      </div>
-    </div>
-  );
+  const loadMoreProjects = useCallback(() => {
+    if (!recommendation || loadingMore || !hasMoreProjects) return;
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    const newProjects = recommendation.similar_projects.slice(0, nextPage * 3);
+    setSimilarProjects(newProjects);
+    setPage(nextPage);
+    if (newProjects.length >= recommendation.similar_projects.length) {
+      setHasMoreProjects(false);
+    }
+    setLoadingMore(false);
+  }, [recommendation, page, loadingMore, hasMoreProjects]);
+
+  const lastProjectRef = useInfiniteScroll({
+    onLoadMore: loadMoreProjects,
+    hasMore: hasMoreProjects,
+    loading: loadingMore,
+  });
 
   const getAllTechnologies = (project: any) => {
     if (Array.isArray(project.technologies)) return project.technologies;
-    // fallback: combine all tech categories
     return [
       ...(project.frontend || []),
       ...(project.backend || []),
       ...(project.database || []),
-      ...(project.devops || [])
+      ...(project.devops || []),
     ];
   };
 
   const renderRecommendation = () => {
     if (!recommendation) return null;
 
+    const hasAlternatives = recommendation.alternatives && Object.keys(recommendation.alternatives).length > 0;
+    const hasSimilarProjects = similarProjects && similarProjects.length > 0;
+    const hasDetailedExplanation = recommendation.detailed_explanation;
+
+    const detailCards = [];
+
+    if (hasDetailedExplanation) {
+      detailCards.push(
+        <div key="justification" className="bg-gray-900/80 border border-gray-700/50 rounded-xl p-6 glass">
+          <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
+            <Lightbulb className="h-5 w-5 mr-3 text-yellow-400" />
+            Detailed Justification
+          </h3>
+          <p className="text-gray-400 whitespace-pre-line leading-relaxed">{recommendation.detailed_explanation}</p>
+        </div>
+      );
+    }
+
+    if (hasSimilarProjects) {
+      detailCards.push(
+        <div key="similar-projects" className="bg-gray-900/80 border border-gray-700/50 rounded-xl p-6 glass">
+          <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
+            <Github className="h-5 w-5 mr-3 text-gray-400" />
+            Similar Projects
+          </h3>
+          <div className="space-y-4">
+            {similarProjects.map((project, index) => (
+              <div key={index} ref={index === similarProjects.length - 1 ? lastProjectRef : null} className="border-b border-gray-700/50 pb-4 last:border-b-0">
+                <h4 className="font-medium mb-2 text-white">{project.name}</h4>
+                <p className="text-gray-400 text-sm mb-3">{project.description}</p>
+                {project.metadata && project.metadata.url && (
+                  <a href={project.metadata.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors duration-200 underline text-xs mb-3 inline-block">View on GitHub</a>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {getAllTechnologies(project).map((tech: string, techIndex: number) => (
+                    <span key={techIndex} className="px-2 py-1 bg-gray-800/60 text-gray-300 rounded-md text-xs border border-gray-700/50">{tech}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {loadingMore && <div className="flex justify-center py-4"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>}
+          </div>
+        </div>
+      );
+    }
+
+    if (hasAlternatives) {
+      detailCards.push(
+        <div key="alternatives" className="bg-gray-900/80 border border-gray-700/50 rounded-xl p-6 glass">
+          <h3 className="text-xl font-semibold mb-4 text-white">Alternative Options</h3>
+          <ul>
+            {Object.entries(recommendation.alternatives).map(([category, techs]) => (
+              <li key={category} className="mb-1">
+                <span className="font-semibold capitalize">{category}:</span> {Array.isArray(techs) ? techs.map((t: any) => t.name).join(', ') : ''}
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6">
+        {/* Recommended Tech Stack Card (Always full width) */}
         <div className="bg-gray-900/80 border border-gray-700/50 rounded-xl p-6 glass">
-          <h2 className="text-2xl font-bold mb-4 text-white">Recommended Tech Stack</h2>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {recommendation.primary_tech_stack && recommendation.primary_tech_stack.length > 0 ? (
-              recommendation.primary_tech_stack.map((tech: any, idx: number) => (
-                <li key={idx} className="mb-1">
-                  <span className="font-semibold text-blue-300">{tech.category}:</span> {tech.name}
-                </li>
-              ))
-            ) : (
-              <li>No recommendation found.</li>
-            )}
-          </div>
-          <p className="text-gray-400">{recommendation.explanation}</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-900/80 border border-gray-700/50 rounded-xl p-6 glass">
-            <h3 className="text-xl font-semibold mb-4 text-white">Alternative Options</h3>
-            {recommendation.alternatives && Object.keys(recommendation.alternatives).length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-1 text-blue-300">Alternatives:</h3>
-                <ul>
-                  {Object.entries(recommendation.alternatives).map(([category, techs]) => (
-                    <li key={category} className="mb-1">
-                      <span className="font-semibold">{category}:</span> {Array.isArray(techs) ? techs.map((t: any) => t.name).join(', ') : ''}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-          
-          <div className="bg-gray-900/80 border border-gray-700/50 rounded-xl p-6 glass">
-            <h3 className="text-xl font-semibold mb-4 text-white">Similar Projects</h3>
-            <div className="space-y-4">
-              {similarProjects.map((project, index) => (
-                <div
-                  key={index}
-                  ref={index === similarProjects.length - 1 ? lastProjectRef : null}
-                  className="border-b border-gray-700/50 pb-4 last:border-b-0"
-                >
-                  <h4 className="font-medium mb-2 text-white">{project.name}</h4>
-                  <p className="text-gray-400 text-sm mb-2">{project.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {getAllTechnologies(project).map((tech: string, techIndex: number) => (
-                      <span
-                        key={techIndex}
-                        className="px-2 py-1 bg-gray-800/50 text-gray-300 rounded text-xs border border-gray-700/50"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {loadingMore && (
-                <div className="flex justify-center py-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-                </div>
-              )}
+            <h2 className="text-2xl font-bold mb-4 text-white">Recommended Tech Stack</h2>
+            <div className="flex flex-wrap gap-2 mb-4">
+                {recommendation.primary_tech_stack.map((tech: any, idx: number) => (
+                    <div key={idx} className="bg-gray-800/60 border border-gray-700/50 rounded-lg px-3 py-1.5 text-sm">
+                    <span className="font-semibold text-blue-300 capitalize">{tech.category}: </span>
+                    <span className="text-gray-200">{tech.name}</span>
+                    </div>
+                ))}
             </div>
-          </div>
+            <p className="text-gray-400 whitespace-pre-line">{recommendation.explanation}</p>
         </div>
+
+        {/* Vertical layout for all additional cards */}
+        {detailCards.length > 0 && (
+          <div className="space-y-6">
+            {detailCards.map((card) => card)}
+          </div>
+        )}
       </div>
     );
   };
-
+  
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Grid Pattern Background */}
+      {/* Background elements */}
       <div className="absolute inset-0 grid-pattern opacity-20"></div>
-      
-      {/* Gradient Background */}
       <div className="absolute inset-0 gradient-bg"></div>
-      
-      {/* Floating Particles */}
       {particles.map((particle) => (
         <div
           key={particle.id}
@@ -332,16 +303,14 @@ export const FrontendUI: React.FC = () => {
 
           <div className="space-y-6 animate-fade-in" style={{animationDelay: '0.6s'}}>
             <div className="relative group max-w-2xl mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative">
                 <label htmlFor="project-description" className="sr-only">Project Description</label>
                 <textarea
                   id="project-description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={handleDescriptionChange}
                   placeholder=" "
                   className="relative w-full h-24 bg-gray-900/80 border border-gray-700/50 rounded-xl px-4 py-3 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all duration-300 glass hover:bg-gray-900/90 focus:bg-gray-900/95"
-                  disabled={loading}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                       handleSubmit(e);
@@ -357,7 +326,7 @@ export const FrontendUI: React.FC = () => {
                       "Need recommendations for a scalable e-commerce platform...",
                       "What stack should I use for a mobile-first web app?"
                     ]}
-                    className="absolute top-4 left-4 text-gray-500"
+                    className="absolute top-4 left-4 text-gray-500 pointer-events-none"
                   />
                 )}
               </div>
@@ -384,12 +353,20 @@ export const FrontendUI: React.FC = () => {
               </button>
             </div>
             
+            {loading && (
+              <p className="text-gray-400 text-lg text-center animate-pulse" style={{animationDelay: '1.2s'}}>
+                StackSense is thinking... please hang on.
+              </p>
+            )}
+
             <p className="text-gray-500 text-sm text-center animate-fade-in" style={{animationDelay: '0.9s'}}>
               Press Cmd+Enter to submit
             </p>
           </div>
 
-          {loading ? renderLoadingState() : renderRecommendation()}
+          <div className="mt-12">
+            {!loading && recommendation && renderRecommendation()}
+          </div>
 
           {error && (
             <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 animate-fade-in">
@@ -400,4 +377,4 @@ export const FrontendUI: React.FC = () => {
       </main>
     </div>
   );
-}; 
+};

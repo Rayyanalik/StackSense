@@ -5,6 +5,9 @@ from app.api.v1.api import api_router
 from app.core.logging import logger
 import os
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(
     title="StackSense API",
@@ -13,9 +16,14 @@ app = FastAPI(
 )
 
 # Configure CORS
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,6 +46,10 @@ async def favicon():
 
 # Include API router with the correct prefix
 app.include_router(api_router, prefix="/api/v1/tech-stack")
+
+@app.get("/")
+def read_root():
+    return {"message": "StackSense API is running!"}
 
 @app.get("/health")
 async def health_check():

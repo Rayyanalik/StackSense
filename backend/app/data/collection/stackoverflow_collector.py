@@ -365,3 +365,60 @@ class StackOverflowCollector(BaseCollector):
             self.logger.warning("No tech stacks collected from Stack Overflow")
             
         return tech_stacks 
+
+    def search_questions(self, query: str, limit: int = 5) -> list:
+        """Search Stack Overflow for questions relevant to the query and return their tech stacks."""
+        params = {
+            'order': 'desc',
+            'sort': 'relevance',
+            'intitle': query,
+            'site': 'stackoverflow',
+            'pagesize': limit,
+            'key': self.api_key
+        }
+        try:
+            response = requests.get(f"{self.base_url}/search", params=params, timeout=self.request_timeout)
+            if response.status_code == 429:
+                logger.warning("Stack Overflow API rate limit exceeded.")
+                raise Exception('Stack Overflow rate limit exceeded')
+            response.raise_for_status()
+            data = response.json()
+            if 'items' not in data:
+                logger.error(f"Unexpected API response: {data}")
+                return []
+            questions = data['items']
+            tech_stacks = []
+            for question in questions:
+                try:
+                    answers = self.get_question_answers(question['question_id'])
+                    technologies = set()
+                    technologies.update(self.extract_technologies(question['title']))
+                    technologies.update(self.extract_technologies(question.get('body', '')))
+                    for answer in answers:
+                        technologies.update(self.extract_technologies(answer.get('body', '')))
+                    if technologies:
+                        tech_stack = {
+                            'name': question['title'],
+                            'description': question.get('body', '')[:200] + '...' if len(question.get('body', '')) > 200 else question.get('body', ''),
+                            'technologies': list(technologies),
+                            'metadata': {
+                                'score': question.get('score'),
+                                'view_count': question.get('view_count'),
+                                'answer_count': question.get('answer_count'),
+                                'created_at': question.get('creation_date'),
+                                'tags': question.get('tags'),
+                                'url': question.get('link', f"https://stackoverflow.com/questions/{question['question_id']}")
+                            },
+                            'collected_at': datetime.now().isoformat(),
+                            'source': 'StackOverflowCollector',
+                            'tech_count': len(technologies),
+                            'description_length': len(question.get('body', '')),
+                            'domain': self.get_domain(question.get('tags', ['General'])[0]) if question.get('tags') else 'General'
+                        }
+                        tech_stacks.append(tech_stack)
+                except Exception as e:
+                    logger.error(f"Error processing question {question.get('question_id', 'unknown')}: {str(e)}")
+            return tech_stacks
+        except Exception as e:
+            logger.error(f"Error searching Stack Overflow: {str(e)}")
+            return [] 

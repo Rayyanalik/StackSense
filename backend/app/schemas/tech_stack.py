@@ -16,5 +16,6 @@ class TechStackRecommendationResponse(BaseModel):
     primary_tech_stack: List[Technology]
     alternatives: Dict[str, List[Technology]]
     explanation: str
+    detailed_explanation: Optional[str] = None
     confidence_level: float
     similar_projects: List[Dict] = [] 

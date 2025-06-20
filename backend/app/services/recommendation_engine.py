@@ -8,14 +8,22 @@ import json
 from sentence_transformers import SentenceTransformer
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from app.data.collection.github_collector import GitHubCollector
+from app.data.collection.stackoverflow_collector import StackOverflowCollector
+import requests
 
 class RecommendationEngine:
     def __init__(self):
         self.tech_categories = {
-            'frontend': ['react', 'vue', 'angular', 'svelte'],
-            'backend': ['node.js', 'django', 'flask', 'spring'],
-            'database': ['mongodb', 'postgresql', 'mysql', 'redis'],
-            'devops': ['docker', 'kubernetes', 'aws', 'jenkins']
+            'frontend': ['react', 'vue', 'angular', 'svelte', 'next.js', 'gatsby', 'ember', 'preact', 'jquery', 'backbone', 'aurelia', 'knockout', 'mithril'],
+            'backend': ['node.js', 'nodejs', 'django', 'flask', 'spring', 'springboot', 'fastapi', 'ruby on rails', 'rails', 'laravel', 'express', 'koa', 'phoenix', 'gin', 'asp.net', 'actix'],
+            'database': ['mongodb', 'postgresql', 'postgres', 'mysql', 'redis', 'sqlite', 'mariadb', 'cassandra', 'dynamodb', 'firebase', 'couchbase', 'rethinkdb'],
+            'devops': ['docker', 'kubernetes', 'aws', 'jenkins', 'gcp', 'azure', 'travis ci', 'circleci', 'gitlab ci', 'ansible', 'puppet', 'chef', 'terraform', 'vagrant'],
+            'mobile': ['react native', 'flutter', 'swift', 'kotlin', 'xamarin', 'ionic', 'cordova'],
+            'language': ['python', 'javascript', 'typescript', 'java', 'go', 'rust', 'c#', 'php', 'ruby', 'scala', 'c++', 'swift', 'kotlin', 'elixir'],
+            'testing': ['jest', 'mocha', 'chai', 'selenium', 'cypress', 'junit', 'pytest', 'rspec', 'testing-library'],
+            'orm': ['sqlalchemy', 'django orm', 'typeorm', 'sequelize', 'prisma', 'gorm', 'hibernate', 'peewee'],
+            'api': ['graphql', 'rest', 'grpc'],
         }
         self.project_data = self._load_project_data()
         self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -62,130 +70,209 @@ class RecommendationEngine:
         constraints: Optional[Dict[str, Union[str, List[str]]]] = None
     ) -> Dict[str, Any]:
         """
-        Generate technology stack recommendations based on project description and requirements.
-        Always return the top N most similar projects, even if similarity is low.
-        If no aggregation is possible, fall back to the first similar project's stack.
-        Also, add a 'technologies' field to each similar project for frontend compatibility.
+        Generates a tech stack recommendation by combining results from an LLM and similar projects from GitHub.
         """
+        # --- Stage 1: Always fetch similar projects from GitHub for context ---
+        github_projects = []
         try:
-            start_time = time.time()
+            github_collector = GitHubCollector()
+            github_projects = github_collector.search_projects(project_description, limit=5)
+            logger.info(f"Found {len(github_projects)} similar projects on GitHub.")
+        except Exception as e:
+            logger.warning(f"GitHub search for similar projects failed: {e}")
+
+        # --- Stage 2: Always use an LLM to generate the core recommendation ---
+        llm_recommendation = None
+
+        # Attempt Perplexity LLM first
+        try:
+            logger.info("Attempting Perplexity LLM for recommendation.")
+            api_key = os.getenv('PERPLEXITY_API_KEY')
+            if not api_key:
+                raise Exception('PERPLEXITY_API_KEY not set')
             
-            # Convert constraints dictionary to list of strings
-            constraint_list = []
-            if constraints:
-                for category, value in constraints.items():
-                    if isinstance(value, list):
-                        constraint_list.extend(value)
-                    else:
-                        constraint_list.append(str(value))
+            url = "https://api.perplexity.ai/chat/completions"
+            headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+            prompt = self._get_llm_prompt(project_description)
+            payload = {
+                "model": "llama-3-sonar-large-32k-online",
+                "messages": [
+                    {"role": "system", "content": "You are an AI assistant that provides tech stack recommendations in a strict JSON format."},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": 1024,
+                "response_format": {"type": "json_object"}
+            }
+            
+            resp = requests.post(url, headers=headers, json=payload, timeout=30)
+            resp.raise_for_status()
+            
+            llm_response_text = resp.json()['choices'][0]['message']['content']
+            llm_data = json.loads(llm_response_text.strip().removeprefix("```json").removesuffix("```"))
+            
+            llm_recommendation = {
+                'primary_tech_stack': llm_data.get('primary_tech_stack', []),
+                'detailed_explanation': llm_data.get('explanation'),
+                'confidence_level': 0.8
+            }
+            logger.info('Successfully received recommendation from Perplexity.')
 
-            # Always get top N similar projects (even if similarity is low)
-            N = 5
-            similar_projects = self.find_similar_projects(project_description, top_n=N)
+        except Exception as e:
+            logger.error(f"Perplexity LLM fallback failed: {e}. Trying Cohere.")
 
-            # Add a 'technologies' field to each similar project for frontend compatibility
-            for project in similar_projects:
-                techs = []
-                for cat in self.tech_categories:
-                    techs.extend(project.get(cat, []))
-                project['technologies'] = techs
+        # If Perplexity fails, attempt Cohere LLM
+        if llm_recommendation is None:
+            try:
+                logger.info("Attempting Cohere LLM for recommendation.")
+                cohere_api_key = os.getenv('COHERE_API_KEY')
+                if not cohere_api_key:
+                    raise Exception('COHERE_API_KEY not set')
 
-            # Debug: print similar projects and their tech stacks
-            print("Similar projects:")
-            for project in similar_projects:
-                print("Project:", project.get('name'), "Desc:", project.get('description'))
-                for cat in self.tech_categories:
-                    print(f"  {cat}: ", project.get(cat, []))
-                print(f"  technologies: {project.get('technologies', [])}")
+                import cohere
+                co = cohere.Client(cohere_api_key)
+                prompt = self._get_llm_prompt(project_description)
+                
+                response = co.chat(model="command-r-plus", message=prompt, temperature=0.3, max_tokens=1024)
+                
+                llm_response_text = response.text
+                llm_data = json.loads(llm_response_text.strip().removeprefix("```json").removesuffix("```"))
+                
+                llm_recommendation = {
+                    'primary_tech_stack': llm_data.get('primary_tech_stack', []),
+                    'detailed_explanation': llm_data.get('explanation'),
+                    'confidence_level': 0.75
+                }
+                logger.info('Successfully received recommendation from Cohere.')
 
-            # Aggregate technologies from similar projects
-            tech_counter = {cat: Counter() for cat in self.tech_categories}
-            for project in similar_projects:
-                for cat in self.tech_categories:
-                    techs = project.get(cat, [])
-                    for tech in techs:
-                        if not any(c.lower() in tech.lower() for c in constraint_list):
-                            tech_counter[cat][tech.lower()] += 1
+            except Exception as e:
+                logger.error(f"Cohere LLM also failed: {e}. Falling back to local data.")
 
-            # Build primary stack: most common tech in each category
-            primary_stack = []
-            for cat, counter in tech_counter.items():
-                if counter:
-                    tech, _ = counter.most_common(1)[0]
+        # --- Stage 3: Fallback to local data if both LLMs fail ---
+        if llm_recommendation is None:
+            logger.info('All external APIs failed. Falling back to local dataset.')
+            local_rec = self._generate_local_recommendation(project_description, requirements, constraints)
+            final_recommendation = {
+                'primary_tech_stack': local_rec.get('primary_tech_stack', []),
+                'alternatives': local_rec.get('alternatives', {}),
+                'explanation': "This recommendation was generated from our local dataset as external services were unavailable.",
+                'detailed_explanation': None,
+                'confidence_level': 0.5,
+                'similar_projects': github_projects or local_rec.get('similar_projects', []) # Use GitHub projects if available
+            }
+        else:
+            # --- Stage 4: Combine GitHub results with LLM recommendation ---
+            final_recommendation = {
+                'primary_tech_stack': llm_recommendation.get('primary_tech_stack'),
+                'alternatives': {}, # LLMs are not currently generating alternatives
+                'explanation': "This is the best fit tech stack generated by our StackSense AI based on your project description.",
+                'detailed_explanation': llm_recommendation.get('detailed_explanation'),
+                'confidence_level': llm_recommendation.get('confidence_level'),
+                'similar_projects': github_projects
+            }
+
+        logger.info(f'Final recommendation: {final_recommendation}')
+        return final_recommendation
+
+    def _get_llm_prompt(self, project_description: str) -> str:
+        """Generates a standardized prompt for LLM recommendations."""
+        return f"""
+        You are an expert software architect. Your task is to suggest a modern tech stack for the project described below and provide a justification.
+        Project Description: '{project_description}'
+
+        You MUST provide your response as a single, valid JSON object, without any surrounding text or markdown formatting.
+        The JSON object must have two keys: 'primary_tech_stack' and 'explanation'.
+        - 'primary_tech_stack' must be a list of objects. Each object must have a 'category' string and a 'name' string.
+        - 'explanation' must be a string that provides a detailed justification for why this is a good tech stack for the project.
+
+        Here is an example of the required output format:
+        {{
+          "primary_tech_stack": [
+            {{"category": "frontend", "name": "React"}},
+            {{"category": "backend", "name": "Node.js with Express"}},
+            {{"category": "database", "name": "PostgreSQL"}}
+          ],
+          "explanation": "This stack is ideal for a modern SaaS platform because React offers a rich ecosystem for building interactive UIs, Node.js is efficient for I/O-heavy operations, and PostgreSQL is a robust and reliable relational database."
+        }}
+        """
+
+    def _generate_local_recommendation(self, project_description, requirements, constraints):
+        # (existing local logic from previous generate_recommendation)
+        start_time = time.time()
+        constraint_list = []
+        if constraints:
+            for category, value in constraints.items():
+                if isinstance(value, list):
+                    constraint_list.extend(value)
+                else:
+                    constraint_list.append(str(value))
+        N = 5
+        similar_projects = self.find_similar_projects(project_description, top_n=N)
+        for project in similar_projects:
+            techs = []
+            for cat in self.tech_categories:
+                techs.extend(project.get(cat, []))
+            project['technologies'] = techs
+        tech_counter = {cat: Counter() for cat in self.tech_categories}
+        for project in similar_projects:
+            for cat in self.tech_categories:
+                techs = project.get(cat, [])
+                for tech in techs:
+                    if not any(c.lower() in tech.lower() for c in constraint_list):
+                        tech_counter[cat][tech.lower()] += 1
+        primary_stack = []
+        for cat, counter in tech_counter.items():
+            if counter:
+                tech, _ = counter.most_common(1)[0]
+                primary_stack.append({
+                    "name": tech,
+                    "category": cat,
+                    "version": None,
+                    "description": None
+                })
+        if not primary_stack and similar_projects:
+            fallback = similar_projects[0]
+            for cat in self.tech_categories:
+                techs = fallback.get(cat, [])
+                if techs:
                     primary_stack.append({
-                        "name": tech,
+                        "name": techs[0],
                         "category": cat,
                         "version": None,
                         "description": None
                     })
-
-            # If no aggregation, fall back to first similar project's stack
-            if not primary_stack and similar_projects:
-                fallback = similar_projects[0]
-                print("Falling back to first similar project stack:", fallback.get('name'))
-                for cat in self.tech_categories:
-                    techs = fallback.get(cat, [])
-                    if techs:
-                        primary_stack.append({
-                            "name": techs[0],
-                            "category": cat,
-                            "version": None,
-                            "description": None
-                        })
-
-            # Build alternatives: next most common techs in each category
-            alternatives = {}
-            for cat, counter in tech_counter.items():
-                if counter:
-                    alt_techs = [
-                        {"name": tech, "category": cat, "version": None, "description": None}
-                        for tech, _ in counter.most_common()[1:4]
-                    ]
-                    if alt_techs:
-                        alternatives[cat] = alt_techs
-
-            # Explanation
-            similar_names = ', '.join([p.get('name', 'Unknown') for p in similar_projects])
-            explanation = (
-                f"Based on your project description, I found similar projects: {similar_names}. "
-                f"The recommended stack is based on the most common technologies used in these projects."
-            )
-
-            duration = (time.time() - start_time) * 1000
-
-            recommendation = {
-                'primary_tech_stack': primary_stack,
-                'alternatives': alternatives,
-                'explanation': explanation,
-                'confidence_level': 0.9 if primary_stack else 0.5,
-                'similar_projects': similar_projects
+        alternatives = {}
+        for cat, counter in tech_counter.items():
+            if counter:
+                alt_techs = [
+                    {"name": tech, "category": cat, "version": None, "description": None}
+                    for tech, _ in counter.most_common()[1:4]
+                ]
+                if alt_techs:
+                    alternatives[cat] = alt_techs
+        similar_names = ', '.join([p.get('name', 'Unknown') for p in similar_projects])
+        explanation = (
+            f"[Local] Based on your project description, I found similar projects: {similar_names}. "
+            f"The recommended stack is based on the most common technologies used in these projects."
+        )
+        duration = (time.time() - start_time) * 1000
+        recommendation = {
+            'primary_tech_stack': primary_stack,
+            'alternatives': alternatives,
+            'explanation': explanation,
+            'confidence_level': 0.9 if primary_stack else 0.5,
+            'similar_projects': similar_projects
+        }
+        logger.info(
+            "Generated local recommendation",
+            extra={
+                'project_description': project_description,
+                'requirements': requirements,
+                'constraints': constraints,
+                'recommendation': recommendation,
+                'processing_time_ms': duration
             }
-
-            # Log recommendation generation
-            logger.info(
-                "Generated recommendation",
-                extra={
-                    'project_description': project_description,
-                    'requirements': requirements,
-                    'constraints': constraints,
-                    'recommendation': recommendation,
-                    'processing_time_ms': duration
-                }
-            )
-
-            return recommendation
-
-        except Exception as e:
-            logger.error(
-                "Error generating recommendation",
-                extra={
-                    'error': str(e),
-                    'description_length': len(project_description),
-                    'requirements_count': len(requirements),
-                    'constraints_count': len(constraints) if constraints else 0
-                }
-            )
-            raise
+        )
+        return recommendation
 
     def _find_similar_projects(
         self,
