@@ -17,6 +17,7 @@ app = FastAPI(
 
 # Configure CORS
 origins = [
+    "https://stacksense-frontend.vercel.app",
     "http://localhost:3000",
     "http://localhost:3001",
 ]
