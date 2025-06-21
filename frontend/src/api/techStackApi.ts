@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1/tech-stack';
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 export interface ProjectDescription {
     description: string;
@@ -64,7 +64,7 @@ class TechStackApi {
 
     async getRecommendation(project: ProjectDescription, signal?: AbortSignal): Promise<TechStackRecommendation> {
         try {
-            const response = await this.api.post<TechStackRecommendation>('/recommend', project, { signal });
+            const response = await this.api.post<TechStackRecommendation>('/api/v1/tech-stack/recommend', project, { signal });
             return response.data;
         } catch (error) {
             console.error('Error getting recommendation:', error);
