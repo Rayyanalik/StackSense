@@ -27,7 +27,8 @@ class RecommendationEngine:
             'api': ['graphql', 'rest', 'grpc'],
         }
         self.project_data = self._load_project_data()
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        model_path = 'all-MiniLM-L6-v2-local'
+        self.model = SentenceTransformer(model_path)
         self.project_embeddings = self._precompute_project_embeddings()
 
     def _load_project_data(self) -> List[Dict[str, Any]]:

@@ -2,15 +2,18 @@ from sentence_transformers import SentenceTransformer
 
 def main():
     """
-    Downloads the specified SentenceTransformer model to the cache.
+    Downloads the specified SentenceTransformer model to a local path.
     This script is intended to be run during the build process to pre-load
-    the model, preventing download delays during application startup.
+    the model into the project directory, so it gets bundled with the deploy.
     """
     model_name = 'all-MiniLM-L6-v2'
-    print(f"Downloading SentenceTransformer model: {model_name}...")
+    save_path = 'all-MiniLM-L6-v2-local'
+
+    print(f"Downloading SentenceTransformer model '{model_name}' to '{save_path}'...")
     try:
-        SentenceTransformer(model_name)
-        print("Model downloaded and cached successfully.")
+        model = SentenceTransformer(model_name)
+        model.save(path=save_path)
+        print("Model downloaded and saved successfully to local path.")
     except Exception as e:
         print(f"Error downloading model: {e}")
         # Exit with a non-zero status code to fail the build if download fails
