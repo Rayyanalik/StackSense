@@ -29,7 +29,7 @@ class RecommendationEngine:
         self.project_data = self._load_project_data()
         model_path = 'all-MiniLM-L6-v2-local'
         self.model = SentenceTransformer(model_path)
-        self.project_embeddings = self._precompute_project_embeddings()
+        self.project_embeddings = self._load_precomputed_embeddings()
 
     def _load_project_data(self) -> List[Dict[str, Any]]:
         """Load project data from a JSON file."""
@@ -48,6 +48,20 @@ class RecommendationEngine:
         except Exception as e:
             logger.error(f"Failed to load project data: {e}")
             return []
+
+    def _load_precomputed_embeddings(self):
+        """Load pre-computed embeddings from file, or compute them if file doesn't exist."""
+        embeddings_path = 'project_embeddings.npy'
+        try:
+            if os.path.exists(embeddings_path):
+                logger.info(f"Loading pre-computed embeddings from {embeddings_path}")
+                return np.load(embeddings_path)
+            else:
+                logger.warning(f"Pre-computed embeddings file {embeddings_path} not found. Computing embeddings...")
+                return self._precompute_project_embeddings()
+        except Exception as e:
+            logger.error(f"Failed to load pre-computed embeddings: {e}. Computing embeddings...")
+            return self._precompute_project_embeddings()
 
     def _precompute_project_embeddings(self):
         """Compute and cache embeddings for all project descriptions."""

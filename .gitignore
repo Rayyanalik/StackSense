@@ -148,3 +148,4 @@ yarn-error.log
 backend/.venv/
 backend/__pycache__/
 backend/all-MiniLM-L6-v2-local/
+backend/project_embeddings.npy
