@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Use the environment variable for the API URL, with a fallback for local development.
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -27,7 +28,8 @@ export interface TechStack {
 
 export const getRecommendations = async (description: string): Promise<TechStack[]> => {
   try {
-    const response = await apiClient.post<TechStack[]>('/recommend', { description });
+    // Correct the endpoint to match the backend's prefixed route.
+    const response = await apiClient.post<TechStack[]>('/api/v1/tech-stack/recommend', { description });
     return response.data;
   } catch (error) {
     console.error('Error getting recommendations:', error);
