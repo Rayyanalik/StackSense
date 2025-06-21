@@ -23,7 +23,7 @@ def main():
         exit(1)
 
     # --- Part 2: Pre-compute and save project embeddings ---
-    project_data_path = os.path.join('data', 'projects.json')
+    project_data_path = os.path.join('data', 'tech_stacks.json')
     embeddings_save_path = 'project_embeddings.npy'
 
     print(f"Loading project data from '{project_data_path}'...")
