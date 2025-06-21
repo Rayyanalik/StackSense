@@ -288,25 +288,6 @@ docker-compose up --build
 
 ---
 
-## 📸 Screenshots
-
-### Main Interface
-![Main Interface](screenshots/main-interface.png)
-*Clean, modern interface with project description input*
-
-### Recommendation Results
-![Recommendation Results](screenshots/recommendation-results.png)
-*Three-card layout showing tech stack, justification, and similar projects*
-
-### Responsive Design
-![Mobile View](screenshots/mobile-view.png)
-*Fully responsive design that works on all devices*
-
-### API Documentation
-![API Docs](screenshots/api-docs.png)
-*Auto-generated FastAPI documentation*
-
----
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
