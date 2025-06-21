@@ -11,6 +11,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from app.data.collection.github_collector import GitHubCollector
 from app.data.collection.stackoverflow_collector import StackOverflowCollector
 import requests
+import cohere
 
 class RecommendationEngine:
     def __init__(self):
@@ -105,8 +106,11 @@ class RecommendationEngine:
             }
             
             resp = requests.post(url, headers=headers, json=payload, timeout=30)
-            resp.raise_for_status()
             
+            if resp.status_code != 200:
+                logger.error(f"Perplexity API call failed with status {resp.status_code}: {resp.text}")
+                resp.raise_for_status()
+
             llm_response_text = resp.json()['choices'][0]['message']['content']
             llm_data = json.loads(llm_response_text.strip().removeprefix("```json").removesuffix("```"))
             
@@ -118,7 +122,7 @@ class RecommendationEngine:
             logger.info('Successfully received recommendation from Perplexity.')
 
         except Exception as e:
-            logger.error(f"Perplexity LLM fallback failed: {e}. Trying Cohere.")
+            logger.error(f"Perplexity LLM processing failed: {e}", exc_info=True)
 
         # If Perplexity fails, attempt Cohere LLM
         if llm_recommendation is None:
@@ -128,7 +132,6 @@ class RecommendationEngine:
                 if not cohere_api_key:
                     raise Exception('COHERE_API_KEY not set')
 
-                import cohere
                 co = cohere.Client(cohere_api_key)
                 prompt = self._get_llm_prompt(project_description)
                 
@@ -145,7 +148,7 @@ class RecommendationEngine:
                 logger.info('Successfully received recommendation from Cohere.')
 
             except Exception as e:
-                logger.error(f"Cohere LLM also failed: {e}. Falling back to local data.")
+                logger.error(f"Cohere LLM processing failed: {e}", exc_info=True)
 
         # --- Stage 3: Fallback to local data if both LLMs fail ---
         if llm_recommendation is None:
@@ -198,333 +201,112 @@ class RecommendationEngine:
     def _generate_local_recommendation(self, project_description, requirements, constraints):
         # (existing local logic from previous generate_recommendation)
         start_time = time.time()
-        constraint_list = []
-        if constraints:
-            for category, value in constraints.items():
-                if isinstance(value, list):
-                    constraint_list.extend(value)
-                else:
-                    constraint_list.append(str(value))
-        N = 5
-        similar_projects = self.find_similar_projects(project_description, top_n=N)
-        for project in similar_projects:
-            techs = []
-            for cat in self.tech_categories:
-                techs.extend(project.get(cat, []))
-            project['technologies'] = techs
-        tech_counter = {cat: Counter() for cat in self.tech_categories}
-        for project in similar_projects:
-            for cat in self.tech_categories:
-                techs = project.get(cat, [])
-                for tech in techs:
-                    if not any(c.lower() in tech.lower() for c in constraint_list):
-                        tech_counter[cat][tech.lower()] += 1
-        primary_stack = []
-        for cat, counter in tech_counter.items():
-            if counter:
-                tech, _ = counter.most_common(1)[0]
-                primary_stack.append({
-                    "name": tech,
-                    "category": cat,
-                    "version": None,
-                    "description": None
-                })
-        if not primary_stack and similar_projects:
-            fallback = similar_projects[0]
-            for cat in self.tech_categories:
-                techs = fallback.get(cat, [])
-                if techs:
-                    primary_stack.append({
-                        "name": techs[0],
-                        "category": cat,
-                        "version": None,
-                        "description": None
-                    })
-        alternatives = {}
-        for cat, counter in tech_counter.items():
-            if counter:
-                alt_techs = [
-                    {"name": tech, "category": cat, "version": None, "description": None}
-                    for tech, _ in counter.most_common()[1:4]
-                ]
-                if alt_techs:
-                    alternatives[cat] = alt_techs
-        similar_names = ', '.join([p.get('name', 'Unknown') for p in similar_projects])
-        explanation = (
-            f"[Local] Based on your project description, I found similar projects: {similar_names}. "
-            f"The recommended stack is based on the most common technologies used in these projects."
-        )
-        duration = (time.time() - start_time) * 1000
-        recommendation = {
-            'primary_tech_stack': primary_stack,
-            'alternatives': alternatives,
-            'explanation': explanation,
-            'confidence_level': 0.9 if primary_stack else 0.5,
-            'similar_projects': similar_projects
-        }
-        logger.info(
-            "Generated local recommendation",
-            extra={
-                'project_description': project_description,
-                'requirements': requirements,
-                'constraints': constraints,
-                'recommendation': recommendation,
-                'processing_time_ms': duration
+        
+        if not self.project_data:
+            return {
+                "primary_tech_stack": [],
+                "alternatives": {},
+                "explanation": "Could not generate a recommendation due to missing project data.",
+                "confidence_level": 0.0,
+                "similar_projects": []
             }
-        )
-        return recommendation
+            
+        similar_projects = self.find_similar_projects(project_description)
 
-    def _find_similar_projects(
-        self,
-        description: str,
-        requirements: List[str],
-        data: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
-        """
-        Find projects similar to the given description and requirements.
-        """
-        try:
-            similar_projects = []
-            
-            for project in data:
-                # Calculate similarity scores
-                desc_similarity = self.data_processor.calculate_similarity_score(
-                    description,
-                    project['description']
-                )
-                
-                req_similarity = 0.0
-                if requirements:
-                    req_similarity = sum(
-                        self.data_processor.calculate_similarity_score(req, project['description'])
-                        for req in requirements
-                    ) / len(requirements)
-                
-                # Combined similarity score (weighted)
-                similarity = (desc_similarity * 0.7) + (req_similarity * 0.3)
-                
-                similar_projects.append({
-                    **project,
-                    'similarity_score': similarity
-                })
-            
-            # Sort by similarity score
-            similar_projects.sort(key=lambda x: x['similarity_score'], reverse=True)
-            
-            return similar_projects
-            
-        except Exception as e:
-            logger.error(
-                "Error finding similar projects",
-                extra={
-                    'description_length': len(description),
-                    'requirements_count': len(requirements),
-                    'data_count': len(data)
-                }
-            )
-            return []
+        if not similar_projects:
+            return {
+                "primary_tech_stack": [],
+                "alternatives": {},
+                "explanation": "Could not find any similar projects in the local dataset to generate a recommendation.",
+                "confidence_level": 0.0,
+                "similar_projects": []
+            }
 
-    def _generate_primary_stack(
-        self,
-        tech_frequency: Dict[str, int],
-        constraints: List[str]
-    ) -> List[Dict[str, Any]]:
-        """
-        Generate primary tech stack based on technology frequency and constraints.
-        """
-        try:
-            primary_stack = []
-            constraints = [c.lower() for c in constraints]
-            
-            for category, techs in self.tech_categories.items():
-                # Filter out constrained technologies
-                available_techs = [
-                    tech for tech in techs
-                    if not any(c in tech.lower() for c in constraints)
-                ]
-                
-                if available_techs:
-                    # Find most frequent technology in category
-                    category_techs = {
-                        tech: tech_frequency.get(tech, 0)
-                        for tech in available_techs
-                    }
-                    
-                    if category_techs:
-                        most_frequent = max(category_techs.items(), key=lambda x: x[1])[0]
-                        primary_stack.append({
-                            "name": most_frequent,
-                            "category": category,
-                            "version": None,
-                            "description": None
-                        })
-            
-            return primary_stack
-            
-        except Exception as e:
-            logger.error(
-                "Error generating primary stack",
-                extra={
-                    'tech_count': len(tech_frequency),
-                    'constraints_count': len(constraints)
-                }
-            )
-            return []
+        all_tech = [tech for proj in similar_projects for tech in proj['tech_stack']]
+        tech_frequency = Counter(all_tech)
+        
+        primary_stack = self._generate_primary_stack(tech_frequency, constraints if constraints else {})
+        alternatives = self._generate_alternatives(tech_frequency, primary_stack, constraints if constraints else {})
+        confidence = self._calculate_confidence(similar_projects, tech_frequency)
+        explanation = self._generate_explanation(primary_stack, alternatives, similar_projects, confidence)
 
-    def _generate_alternatives(
-        self,
-        tech_frequency: Dict[str, int],
-        primary_stack: List[Dict[str, Any]],
-        constraints: List[str]
-    ) -> Dict[str, List[Dict[str, Any]]]:
-        """
-        Generate alternative technology options.
-        """
-        try:
-            alternatives = {}
-            constraints = [c.lower() for c in constraints]
-            
-            for category, techs in self.tech_categories.items():
-                # Filter out primary stack and constrained technologies
-                available_techs = [
-                    tech for tech in techs
-                    if tech not in [t["name"] for t in primary_stack]
-                    and not any(c in tech.lower() for c in constraints)
-                ]
-                
-                if available_techs:
-                    # Sort by frequency
-                    category_techs = {
-                        tech: tech_frequency.get(tech, 0)
-                        for tech in available_techs
-                    }
-                    
-                    sorted_techs = sorted(
-                        category_techs.items(),
-                        key=lambda x: x[1],
-                        reverse=True
-                    )
-                    
-                    alternatives[category] = [
-                        {
-                            "name": tech,
-                            "category": category,
-                            "version": None,
-                            "description": None
-                        }
-                        for tech, _ in sorted_techs[:3]  # Top 3 alternatives
-                    ]
-            
-            return alternatives
-            
-        except Exception as e:
-            logger.error(
-                "Error generating alternatives",
-                extra={
-                    'tech_count': len(tech_frequency),
-                    'primary_stack_count': len(primary_stack),
-                    'constraints_count': len(constraints)
-                }
-            )
-            return {}
+        end_time = time.time()
+        logger.info(f"Local recommendation generated in {end_time - start_time:.2f} seconds.")
 
-    def _calculate_confidence(
-        self,
-        similar_projects: List[Dict[str, Any]],
-        tech_frequency: Dict[str, int]
-    ) -> float:
-        """
-        Calculate confidence level for the recommendation.
-        """
-        try:
-            if not similar_projects or not tech_frequency:
-                return 0.0
+        return {
+            "primary_tech_stack": primary_stack,
+            "alternatives": alternatives,
+            "explanation": explanation,
+            "confidence_level": confidence,
+            "similar_projects": similar_projects,
+        }
+
+    def _generate_primary_stack(self, tech_frequency, constraints):
+        primary_stack = []
+        used_tech = set()
+        
+        # Respect hard constraints first
+        for category, tech in constraints.items():
+            if category in self.tech_categories and tech not in used_tech:
+                primary_stack.append({'category': category, 'name': tech})
+                used_tech.add(tech)
+
+        # Fill remaining categories based on frequency
+        for category, tech_list in self.tech_categories.items():
+            if not any(t['category'] == category for t in primary_stack):
+                # Find the most frequent tech for this category that is not already used
+                most_frequent_tech = None
+                max_freq = -1
+                for tech, freq in tech_frequency.items():
+                    if tech in tech_list and tech not in used_tech and freq > max_freq:
+                        most_frequent_tech = tech
+                        max_freq = freq
+                
+                if most_frequent_tech:
+                    primary_stack.append({'category': category, 'name': most_frequent_tech})
+                    used_tech.add(most_frequent_tech)
+        
+        return primary_stack
+
+    def _generate_alternatives(self, tech_frequency, primary_stack, constraints):
+        alternatives = {}
+        primary_tech_names = {t['name'] for t in primary_stack}
+
+        for tech_in_stack in primary_stack:
+            category = tech_in_stack['category']
             
-            # Factors affecting confidence:
-            # 1. Number of similar projects
-            # 2. Similarity scores
-            # 3. Technology frequency distribution
+            # Find top 3 alternatives for the category, excluding constrained and primary ones
+            category_alternatives = []
+            for tech, freq in tech_frequency.most_common():
+                if tech in self.tech_categories.get(category, []) and \
+                   tech not in primary_tech_names and \
+                   tech != constraints.get(category):
+                    category_alternatives.append({'name': tech, 'description': f"Used in {freq} similar projects."})
+                    if len(category_alternatives) >= 3:
+                        break
             
-            # Similar projects factor (0-0.4)
-            project_factor = min(len(similar_projects) / 10, 1.0) * 0.4
-            
-            # Similarity scores factor (0-0.3)
-            similarity_factor = (
-                sum(p['similarity_score'] for p in similar_projects[:5]) / 5
-            ) * 0.3
-            
-            # Technology frequency factor (0-0.3)
-            total_freq = sum(tech_frequency.values())
-            if total_freq > 0:
-                max_freq = max(tech_frequency.values())
-                freq_factor = (max_freq / total_freq) * 0.3
-            else:
-                freq_factor = 0.0
-            
-            return min(project_factor + similarity_factor + freq_factor, 1.0)
-            
-        except Exception as e:
-            logger.error(
-                "Error calculating confidence",
-                extra={
-                    'similar_projects_count': len(similar_projects),
-                    'tech_count': len(tech_frequency)
-                }
-            )
+            if category_alternatives:
+                alternatives[category] = category_alternatives
+                
+        return alternatives
+
+    def _calculate_confidence(self, similar_projects, tech_frequency):
+        # Simple confidence score based on number of similar projects and frequency of top tech
+        if not similar_projects:
             return 0.0
+        
+        confidence = min(len(similar_projects) / 5.0, 1.0) * 0.6 # 60% weight for number of projects
+        
+        if tech_frequency:
+            top_tech_freq = tech_frequency.most_common(1)[0][1]
+            confidence += min(top_tech_freq / 10.0, 1.0) * 0.4 # 40% weight for top tech frequency
+            
+        return round(confidence, 2)
 
-    def _generate_explanation(
-        self,
-        primary_stack: List[Dict[str, Any]],
-        alternatives: Dict[str, List[Dict[str, Any]]],
-        similar_projects: List[Dict[str, Any]],
-        confidence: float
-    ) -> str:
-        """
-        Generate explanation for the recommendations.
-        """
-        try:
-            explanation_parts = []
-            
-            # Primary stack explanation
-            if primary_stack:
-                explanation_parts.append(
-                    f"Based on your project requirements, we recommend using "
-                    f"{', '.join([t['name'] for t in primary_stack])} as your primary technology stack."
-                )
-            
-            # Alternatives explanation
-            if alternatives:
-                explanation_parts.append(
-                    f"Alternative technologies to consider include "
-                    f"{', '.join([', '.join([t['name'] for t in techs]) for techs in alternatives.values()])}."
-                )
-            
-            # Similar projects explanation
-            if similar_projects:
-                project_names = [p['name'] for p in similar_projects[:3]]
-                explanation_parts.append(
-                    f"These recommendations are based on similar projects: "
-                    f"{', '.join(project_names)}."
-                )
-            
-            # Confidence explanation
-            confidence_level = "high" if confidence > 0.7 else "medium" if confidence > 0.4 else "low"
-            explanation_parts.append(
-                f"We have {confidence_level} confidence in these recommendations "
-                f"(confidence score: {confidence:.2f})."
-            )
-            
-            return " ".join(explanation_parts)
-            
-        except Exception as e:
-            logger.error(
-                "Error generating explanation",
-                extra={
-                    'primary_stack': primary_stack,
-                    'alternatives': alternatives,
-                    'similar_projects_count': len(similar_projects),
-                    'confidence': confidence
-                }
-            )
-            return "Unable to generate detailed explanation." 
+    def _generate_explanation(self, primary_stack, alternatives, similar_projects, confidence):
+        stack_str = ', '.join([f"{t['name']} ({t['category']})" for t in primary_stack])
+        return (
+            f"Based on an analysis of {len(similar_projects)} similar projects, the recommended stack is {stack_str}. "
+            f"This recommendation has a confidence score of {confidence * 100}%. "
+            f"Key technologies were chosen based on their frequent appearance in comparable projects."
+        )
