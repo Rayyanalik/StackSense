@@ -29,7 +29,16 @@ def main():
     print(f"Loading project data from '{project_data_path}'...")
     try:
         with open(project_data_path, 'r') as f:
-            project_data = json.load(f)
+            data = json.load(f)
+            
+        # Handle the structure where data is wrapped in "tech_stacks" key
+        if isinstance(data, dict) and 'tech_stacks' in data:
+            project_data = data['tech_stacks']
+        elif isinstance(data, list):
+            project_data = data
+        else:
+            print(f"Unexpected data structure in {project_data_path}")
+            exit(1)
         
         print("Pre-computing project embeddings...")
         descriptions = [p.get('description', '') for p in project_data]
