@@ -1,4 +1,4 @@
-# 🚀 StackSense - AI-Powered Tech Stack Recommendation Engine
+# 🚀 StackSense - Powered By AI
 
 <div align="center">
 
@@ -276,41 +276,9 @@ erDiagram
     PROJECTS ||--o{ RECOMMENDATIONS : "generates"
     PROJECTS ||--o{ SIMILAR_PROJECTS : "finds"
 ```
-
-### Data Models
-
-#### Project Data Structure
-```json
-{
-  "name": "Modern Web App",
-  "description": "A real-time chat application for remote teams.",
-  "frontend": ["React", "TypeScript", "Tailwind CSS"],
-  "backend": ["Node.js", "Express"],
-  "database": ["MongoDB"],
-  "devops": ["Docker", "AWS"],
-  "use_cases": ["Web Applications", "Real-time Applications", "REST APIs"]
-}
-```
-
-#### Recommendation Response
-```json
-{
-  "primary_tech_stack": [
-    {"category": "frontend", "name": "React"},
-    {"category": "backend", "name": "Node.js with Express"},
-    {"category": "database", "name": "PostgreSQL"}
-  ],
-  "detailed_explanation": "This stack is ideal for...",
-  "confidence_level": 0.85,
-  "similar_projects": [...]
-}
-```
-
 ---
 
 ## 🚀 Getting Started
-
-
 
 ### Quick Start with Docker (Future Enhancement)
 ```bash
@@ -364,8 +332,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by [Rayyan Ali Khan](https://github.com/Rayyanalik)**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=for-the-badge&logo=github)](https://github.com/Rayyanalik)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/rayyanalikhan)
-[![Portfolio](https://img.shields.io/badge/Portfolio-View-green?style=for-the-badge&logo=globe)](https://rayyanalikhan.dev)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](www.linkedin.com/in/mohammed-ali-rayyan-4aa377257)
+[![Portfolio](https://img.shields.io/badge/Portfolio-View-green?style=for-the-badge&logo=globe)]([https://rayyanalikhan.dev](https://rk-space-portfolio.vercel.app))
 
 **⭐ Star this repository if you found it helpful!**
 
