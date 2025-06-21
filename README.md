@@ -295,21 +295,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 
-## 📈 Project Statistics
-
-<div align="center">
-
-![GitHub stars](https://img.shields.io/github/stars/Rayyanalik/StackSense?style=for-the-badge&logo=github)
-![GitHub forks](https://img.shields.io/github/forks/Rayyanalik/StackSense?style=for-the-badge&logo=github)
-![GitHub issues](https://img.shields.io/github/issues/Rayyanalik/StackSense?style=for-the-badge&logo=github)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Rayyanalik/StackSense?style=for-the-badge&logo=github)
-
-</div>
-
----
-
-<div align="center">
-
 **Made with ❤️ by [Rayyan Ali Khan](https://github.com/Rayyanalik)**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=for-the-badge&logo=github)](https://github.com/Rayyanalik)
