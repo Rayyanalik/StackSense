@@ -144,7 +144,7 @@ StackSense is an intelligent web application that provides personalized technolo
 - **Purpose**: Semantic similarity for project matching
 - **Implementation**: Pre-computed embeddings for performance
 - **Features**: 
-  - 90MB model with 20+ project descriptions
+  - 90MB model with 1000+ project descriptions
   - Cosine similarity for matching
   - Real-time embedding generation for new queries
   - Pre-downloaded during build for fast startup
@@ -168,17 +168,6 @@ StackSense is an intelligent web application that provides personalized technolo
   - Alternative suggestions
   - Robust error handling
 
-### 3. Recommendation Algorithm
-
-```python
-# Multi-stage recommendation pipeline
-1. GitHub Project Search → Find similar open-source projects
-2. LLM Analysis → Generate primary recommendations
-3. Local Dataset Fallback → Statistical analysis if APIs fail
-4. Similarity Matching → Find relevant projects using embeddings
-5. Confidence Scoring → Rate recommendation quality
-6. Response Assembly → Combine all insights into final recommendation
-```
 
 ### 4. Data Processing Pipeline
 
@@ -321,71 +310,7 @@ erDiagram
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+ and npm
-- Python 3.10+
-- Git
 
-### Frontend Setup
-```bash
-# Clone the repository
-git clone https://github.com/Rayyanalik/StackSense.git
-cd StackSense
-
-# Install dependencies
-cd frontend
-npm install
-
-# Start development server
-npm run dev
-```
-
-### Backend Setup
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Set environment variables
-cp .env.example .env
-# Edit .env with your API keys
-
-# Start the server
-uvicorn app.main:app --reload
-```
-
-### Environment Variables
-```bash
-# Required API Keys
-PERPLEXITY_API_KEY=your_perplexity_key
-COHERE_API_KEY=your_cohere_key
-GITHUB_TOKEN=your_github_token
-
-# Optional
-DATABASE_URL=your_database_url
-REDIS_URL=your_redis_url
-```
-
-### Deployment
-
-#### Frontend (Vercel)
-1. Connect GitHub repository to Vercel
-2. Set build directory to `frontend`
-3. Configure environment variables
-4. Deploy automatically on push
-
-#### Backend (Render)
-1. Connect GitHub repository to Render
-2. Set build command: `pip install -r requirements.txt && python download_model.py`
-3. Set start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-4. Configure environment variables
-5. Deploy automatically on push
 
 ### Quick Start with Docker (Future Enhancement)
 ```bash
@@ -414,104 +339,12 @@ docker-compose up --build
 *Auto-generated FastAPI documentation*
 
 ---
-
-## 🔧 API Documentation
-
-### Base URL
-```
-Frontend: https://stacksense-frontend.vercel.app
-Backend: https://stacksense-backend.onrender.com
-```
-
-### Endpoints
-
-#### POST `/api/v1/tech-stack/recommend`
-Generate tech stack recommendations
-
-**Request Body:**
-```json
-{
-  "project_description": "A real-time chat application for remote teams",
-  "requirements": ["scalability", "real-time"],
-  "constraints": {
-    "budget": "low",
-    "timeline": "3 months"
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "primary_tech_stack": [...],
-  "detailed_explanation": "...",
-  "confidence_level": 0.85,
-  "similar_projects": [...]
-}
-```
-
-#### GET `/api/v1/tech-stack/similar`
-Find similar projects
-
-**Query Parameters:**
-- `description`: Project description
-- `limit`: Number of results (default: 5)
-
-### Error Handling
-- **400**: Invalid request data
-- **500**: Internal server error
-- **503**: External API unavailable
-
-### API Documentation
-Visit the interactive API documentation at: https://stacksense-backend.onrender.com/docs
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Style
-- **Frontend**: ESLint + Prettier
-- **Backend**: Black + isort
-- **TypeScript**: Strict mode enabled
-- **Python**: Type hints required
-
-### Testing
-```bash
-# Frontend tests
-cd frontend && npm test
-
-# Backend tests
-cd backend && python -m pytest
-```
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
-
-- **Hugging Face** for sentence transformers and the ML ecosystem
-- **Perplexity AI** and **Cohere** for powerful LLM capabilities
-- **GitHub** for providing rich project data and APIs
-- **Vercel** and **Render** for reliable hosting and deployment
-- **Open Source Community** for inspiration, tools, and best practices
-- **FastAPI** team for the excellent web framework
-- **React** team for the amazing frontend library
-
----
 
 ## 📈 Project Statistics
 
